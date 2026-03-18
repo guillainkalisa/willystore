@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% load cart_tags %}
+
+{% block title %}Your Cart | Willystore{% endblock %}
+
+{% block content %}
+<div class="page-header text-left mt-8 mb-6 sm:mt-12 sm:mb-8">
+    <h1 class="text-3xl sm:text-4xl font-heading font-bold mb-2">Shopping Cart</h1>
+    <p class="text-text-secondary text-sm sm:text-base">Review your items before checkout.</p>
+</div>
+
+{% if cart|length > 0 %}
+<div class="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
+
+    <!-- Cart Items Table -->
+    <div class="w-full lg:w-2/3 glass-card overflow-hidden p-0">
+        <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse min-w-[600px]">
+                <thead>
+                    <tr class="border-b border-[var(--glass-border)] text-text-secondary text-sm">
+                        <th class="py-4 px-6 font-medium">Product</th>
+                        <th class="py-4 px-6 text-center font-medium">Quantity</th>
+                        <th class="py-4 px-6 text-right font-medium">Total</th>
+                        <th class="py-4 px-6"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart %}
+                    {% with product=item.product %}
+                    <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                        <td style="padding: 1.5rem;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <!-- Tiny thumbnail -->
+                                <div
+                                    style="width: 60px; height: 60px; border-radius: 8px; overflow: hidden; background: rgba(255,255,255,0.05);">
+                                    {% if product.main_image %}
+                                    <img src="{{ product.main_image.url }}" alt="{{ product.title }}"
+                                        style="width:100%; height:100%; object-fit:cover;">
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <a href="{{ product.get_absolute_url }}" style="font-weight: 600;">{{ product.title
+                                        }}</a>
+                                    {% if item.size %}
+                                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                        Size: {{ item.size }}</div>
+                                    {% endif %}
+                                    {% if item.color %}
+                                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.15rem;">
+                                        Color: {{ item.color }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 px-6 text-center">
+                            <form action="{% url 'cart:cart_add' product.id %}" method="post" class="inline-block">
+                                {% csrf_token %}
+                                <input type="hidden" name="override" value="True">
+                                {% if item.size %}
+                                <input type="hidden" name="size" value="{{ item.size }}">
+                                {% endif %}
+                                {% if item.color %}
+                                <input type="hidden" name="color" value="{{ item.color }}">
+                                {% endif %}
+                                <select name="quantity" onchange="this.form.submit()"
+                                    class="w-16 px-2 py-1.5 border border-[var(--glass-border)] bg-white/5 text-white rounded outline-none focus:border-accent-secondary transition-colors">
+                                    {% for i in "123456789"|make_list %}
+                                    <option value="{{ i }}" {% if item.quantity|is_equal:i %}selected{% endif %}
+                                        style="color: black;">{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </form>
+                        </td>
+                        <td class="py-4 px-6 text-right font-heading font-bold text-accent-secondary text-lg">
+                            RWF {{ item.total_price }}
+                        </td>
+                        <td class="py-4 px-6 text-right">
+                            <form action="{% url 'cart:cart_remove' product.id %}" method="post">
+                                {% csrf_token %}
+                                {% if item.size %}
+                                <input type="hidden" name="size" value="{{ item.size }}">
+                                {% endif %}
+                                {% if item.color %}
+                                <input type="hidden" name="color" value="{{ item.color }}">
+                                {% endif %}
+                                <button type="submit"
+                                    class="text-red-500 hover:text-red-400 hover:scale-110 transition-transform text-xl cursor-pointer bg-transparent border-none">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endwith %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="w-full lg:w-1/3 glass-card p-6 sm:p-8 sticky top-24">
+        <h3 class="text-xl font-heading font-bold mb-6 pb-4 border-b border-[var(--glass-border)]">Order Summary</h3>
+        <div class="flex justify-between items-center mb-4 text-text-secondary text-sm sm:text-base">
+            <span>Subtotal</span>
+            <span>RWF {{ cart.get_total_price }}</span>
+        </div>
+        <div class="flex justify-between items-center mb-6 text-text-secondary text-sm sm:text-base">
+            <span>Delivery</span>
+            <span>Calculated at checkout</span>
+        </div>
+        <div
+            class="flex justify-between items-center mb-8 text-xl font-heading font-bold pt-4 border-t border-[var(--glass-border)]">
+            <span>Total</span>
+            <span class="highlight text-2xl">RWF {{ cart.get_total_price }}</span>
+        </div>
+
+        <a href="{% url 'orders:order_create' %}"
+            class="btn-primary w-full py-4 text-center text-lg shadow-lg shadow-accent-primary/20 hover:-translate-y-1 transition-transform">
+            Proceed to Checkout <i class="fas fa-arrow-right"></i>
+        </a>
+        <a href="{% url 'store:product_list' %}"
+            class="block text-center mt-6 text-text-secondary text-sm hover:text-white transition-colors">
+            <i class="fas fa-arrow-left mr-1"></i> Continue Shopping
+        </a>
+    </div>
+</div>
+
+{% else %}
+<div class="glass-card text-center py-16 px-4">
+    <i class="fas fa-shopping-cart text-6xl sm:text-7xl text-white/10 mb-6 drop-shadow-lg"></i>
+    <h2 class="text-2xl sm:text-3xl font-heading font-bold mb-3">Your cart is empty</h2>
+    <p class="text-text-secondary mb-8 max-w-sm mx-auto">Looks like you haven't added anything to your cart
+        yet.</p>
+    <a href="{% url 'store:product_list' %}" class="btn-primary inline-flex">
+        Start Shopping
+    </a>
+</div>
+{% endif %}
+{% endblock %}

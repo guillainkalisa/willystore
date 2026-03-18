@@ -1,0 +1,394 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Willystore - Kigali's Premium Shoes and Clothes Destination.">
+    <title>{% block title %}Willystore - Premium Kigali Fashion{% endblock %}</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bg-color': '#0d0f17',
+                        'accent-primary': '#6d28d9',
+                        'accent-secondary': '#0ea5e9',
+                        'text-secondary': '#a0a5ba'
+                    },
+                    fontFamily: {
+                        'heading': ['Outfit', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body x-data="{ 
+    mobileMenuOpen: false, 
+    searchOpen: false,
+    cartOpen: false,
+    cartCount: {{ cart|length|default:0 }},
+    cartToast: false,
+    toastMessage: '',
+    cartHTML: `<div class='p-8 text-center text-gray-500'><i class='fas fa-spinner fa-spin text-3xl mb-4'></i><p>Loading your cart...</p></div>`,
+    fetchCart() {
+        fetch(`{% url 'cart:cart_drawer' %}`)
+            .then(res => res.text())
+            .then(html => this.cartHTML = html);
+    }
+}" class="pb-20 md:pb-0 relative" x-init="fetchCart()">
+    <!-- Background Elements for Aesthetics -->
+    <div class="bg-blur top-left"></div>
+    <div class="bg-blur bottom-right"></div>
+
+    <!-- Navigation Bar -->
+    <nav
+        class="sticky top-0 z-40 py-4 border-b border-[var(--glass-border)] glassmorphism transition-colors duration-300 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+            <!-- Left: Menu (Mobile Only) / Logo -->
+            <div class="flex items-center gap-3">
+                <button @click="mobileMenuOpen = true"
+                    class="md:hidden text-2xl text-text-secondary hover:text-white transition-colors">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <a href="{% url 'store:product_list' %}"
+                    class="brand-logo text-2xl md:text-3xl font-heading font-extrabold tracking-tight">
+                    <span class="highlight">WILLY</span>STORE
+                </a>
+            </div>
+
+            <!-- Center: Desktop Links (Hidden on Mobile) -->
+            <div class="hidden md:flex items-center gap-6 text-base font-medium">
+                <a href="{% url 'store:product_list' %}" class="nav-item">Shop</a>
+                {% if categories %}
+                {% for c in categories %}
+                <a href="{{ c.get_absolute_url }}" class="nav-item">{{ c.title }}</a>
+                {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Right: Actions -->
+            <div class="flex items-center gap-4">
+                {% if request.user.is_staff %}
+                <a href="{% url 'dashboard:home' %}"
+                    class="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-accent-primary to-accent-secondary text-white text-sm font-semibold rounded-lg shadow-lg shadow-accent-primary/20 hover:shadow-accent-primary/40 hover:-translate-y-0.5 transition-all">
+                    <i class="fas fa-chart-pie"></i> Dashboard
+                </a>
+                {% endif %}
+                <!-- Mobile Search Icon -->
+                <button @click="searchOpen = !searchOpen"
+                    class="md:hidden text-2xl text-text-secondary hover:text-white transition-colors">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button @click="searchOpen = !searchOpen"
+                    class="hidden md:block text-2xl text-text-secondary hover:text-white transition-colors">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button @click.prevent="cartOpen = true"
+                    class="relative text-xl text-text-secondary hover:text-white hover:scale-110 transition-transform cursor-pointer hidden md:block">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span x-show="cartCount > 0" x-text="cartCount"
+                        class="absolute -top-2 -right-2 bg-gradient-to-br from-accent-primary to-accent-secondary text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-lg"
+                        style="display:none;">
+                    </span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Search Bar Dropdown Overlay -->
+    <div x-show="searchOpen" x-transition:enter="transition-all ease-out duration-300"
+        x-transition:enter-start="opacity-0 -translate-y-10" x-transition:enter-end="opacity-100 translate-y-0"
+        x-transition:leave="transition-all ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0"
+        x-transition:leave-end="opacity-0 -translate-y-10"
+        class="w-full sticky top-[72px] left-0 z-30 px-4 pt-2 pb-4 backdrop-blur-md bg-[var(--bg-color)]/80 border-b border-gray-800 shadow-xl"
+        style="display: none;" @click.outside="searchOpen = false">
+        <form action="{% url 'store:product_list' %}" method="GET" class="max-w-7xl mx-auto relative">
+            <input type="text" name="q" placeholder="Search for sneakers, styles, categories..."
+                class="w-full bg-[#1a1a1a] text-white border focus:border-accent-secondary rounded-2xl py-4 pl-14 pr-12 shadow-inner outline-none placeholder-gray-500 font-bold"
+                x-ref="searchInput" :value="new URLSearchParams(window.location.search).get('q') || ''">
+            <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+            <button type="button" @click="searchOpen = false"
+                class="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xl">
+                <i class="fas fa-times"></i>
+            </button>
+            <input type="hidden" name="sort" :value="new URLSearchParams(window.location.search).get('sort') || ''">
+        </form>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8 sm:my-12">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer
+        class="mt-auto border-t border-[var(--glass-border)] pt-12 sm:pt-16 pb-8 px-4 sm:px-6 lg:px-8 glassmorphism text-text-secondary">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-12">
+            <div class="flex flex-col gap-4">
+                <h3 class="text-2xl font-heading font-bold text-white"><span class="highlight">WILLY</span>STORE</h3>
+                <p class="text-sm max-w-xs leading-relaxed">Kigali's finest selection of contemporary fashion and
+                    footwear.</p>
+            </div>
+            <div class="flex flex-col gap-4">
+                <h4 class="text-xl font-heading font-bold text-white">Explore</h4>
+                <ul class="flex flex-col gap-3">
+                    <li><a href="#" class="hover:text-white hover:pl-1 transition-all">Men</a></li>
+                    <li><a href="#" class="hover:text-white hover:pl-1 transition-all">Women</a></li>
+                    <li><a href="#" class="hover:text-white hover:pl-1 transition-all">Kids</a></li>
+                </ul>
+            </div>
+            <div class="flex flex-col gap-4">
+                <h4 class="text-xl font-heading font-bold text-white">Follow Us</h4>
+                <div class="flex gap-4">
+                    <a href="#"
+                        class="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--glass-bg)] border border-[var(--glass-border)] text-white hover:bg-gradient-to-br hover:from-accent-primary hover:to-accent-secondary hover:-translate-y-1 hover:shadow-lg hover:shadow-accent-primary/40 transition-all"><i
+                            class="fab fa-instagram"></i></a>
+                    <a href="#"
+                        class="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--glass-bg)] border border-[var(--glass-border)] text-white hover:bg-gradient-to-br hover:from-accent-primary hover:to-accent-secondary hover:-translate-y-1 hover:shadow-lg hover:shadow-accent-primary/40 transition-all"><i
+                            class="fab fa-twitter"></i></a>
+                    <a href="#"
+                        class="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--glass-bg)] border border-[var(--glass-border)] text-white hover:bg-gradient-to-br hover:from-accent-primary hover:to-accent-secondary hover:-translate-y-1 hover:shadow-lg hover:shadow-accent-primary/40 transition-all"><i
+                            class="fab fa-facebook-f"></i></a>
+                </div>
+            </div>
+        </div>
+        <div
+            class="max-w-7xl mx-auto mt-12 pt-8 border-t border-[rgba(255,255,255,0.05)] text-center text-sm md:pb-0 pb-6">
+            <p>&copy; {% now "Y" %} Willystore Kigali. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Mobile Bottom Navigation (Hidden on Desktop) -->
+    <nav
+        class="md:hidden fixed bottom-0 left-0 w-full z-40 bg-[#1a1a1a] border-t border-[rgba(255,255,255,0.05)] shadow-[0_-10px_30px_rgba(0,0,0,0.8)] rounded-t-2xl">
+        <div class="flex justify-between items-center px-6 py-4 relative">
+            <a href="{% url 'store:product_list' %}"
+                class="flex flex-col items-center gap-1 {% if request.resolver_match.url_name == 'product_list' and not category %}text-white{% else %}text-gray-500 hover:text-white{% endif %} transition-colors">
+                <i class="fas fa-home text-2xl"></i>
+            </a>
+
+            <a href="{% url 'store:favorites' %}"
+                class="flex flex-col items-center gap-1 {% if request.resolver_match.url_name == 'favorites' %}text-white{% else %}text-gray-500 hover:text-white{% endif %} transition-colors">
+                <i
+                    class="{% if request.resolver_match.url_name == 'favorites' %}fas{% else %}far{% endif %} fa-heart text-2xl"></i>
+            </a>
+
+            <!-- Cart FAB Spacer -->
+            <div class="w-14"></div>
+
+            <a href="#" class="flex flex-col items-center gap-1 text-gray-500 hover:text-white transition-colors">
+                <i class="far fa-bell text-2xl"></i>
+            </a>
+
+            <button @click="mobileMenuOpen = true"
+                class="flex flex-col items-center gap-1 text-gray-500 hover:text-white transition-colors">
+                <i class="far fa-user text-2xl"></i>
+            </button>
+        </div>
+
+        <!-- Center Floating Action Button (FAB) for Cart -->
+        <a href="{% url 'cart:cart_detail' %}"
+            class="absolute left-1/2 -translate-x-1/2 -top-6 w-14 h-14 bg-white rounded-full flex items-center justify-center text-black shadow-lg shadow-black/50 border-[6px] border-[#1a1a1a] hover:scale-105 transition-transform z-50">
+            <div class="relative mt-1">
+                <i class="fas fa-shopping-bag text-xl"></i>
+                {% with total_items=cart|length %}
+                {% if total_items > 0 %}
+                <span
+                    class="absolute -top-3 -right-3 bg-red-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full border-2 border-white">
+                    {{ total_items }}
+                </span>
+                {% endif %}
+                {% endwith %}
+            </div>
+        </a>
+    </nav>
+
+    <!-- Mobile Slide-up Menu Overlay -->
+    <div x-show="mobileMenuOpen" style="display: none;" class="md:hidden relative z-50">
+        <!-- Backdrop -->
+        <div x-show="mobileMenuOpen" x-transition:enter="transition-opacity ease-linear duration-300"
+            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+            x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            @click="mobileMenuOpen = false"></div>
+
+        <!-- Drawer Panel -->
+        <div x-show="mobileMenuOpen" x-transition:enter="transition ease-out duration-300 transform"
+            x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0"
+            x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-y-0"
+            x-transition:leave-end="translate-y-full"
+            class="fixed bottom-0 left-0 w-full h-[85vh] bg-bg-color rounded-t-3xl border-t border-[var(--glass-border)] shadow-2xl flex flex-col p-6 overflow-y-auto pb-24">
+
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-heading font-bold text-white">Menu</h2>
+                <button @click="mobileMenuOpen = false"
+                    class="w-10 h-10 rounded-full bg-[var(--glass-bg)] flex items-center justify-center text-text-secondary hover:text-white transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3">
+                <!-- Decorative AI Assistant feature like NTWAZA screenshot -->
+                <a href="#"
+                    class="flex items-center gap-4 bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl hover:bg-emerald-500/20 transition-colors group">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                        <i class="fas fa-sparkles"></i>
+                    </div>
+                    <div>
+                        <p class="text-white font-bold">Style Assistant</p>
+                        <p class="text-xs text-text-secondary">Get AI recommendations</p>
+                    </div>
+                </a>
+
+                <a href="#"
+                    class="flex items-center gap-4 bg-[var(--glass-bg)] border border-[var(--glass-border)] p-4 rounded-2xl hover:bg-[rgba(255,255,255,0.05)] transition-colors">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-accent-secondary/10 text-accent-secondary flex items-center justify-center text-xl">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <p class="text-white font-bold">My Orders</p>
+                </a>
+
+                <a href="{% url 'store:favorites' %}"
+                    class="flex items-center gap-4 bg-[var(--glass-bg)] border border-[var(--glass-border)] p-4 rounded-2xl hover:bg-[rgba(255,255,255,0.05)] transition-colors">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-red-500/10 text-red-500 flex items-center justify-center text-xl">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div>
+                        <p class="text-white font-bold">My Wishlist</p>
+                        <p class="text-xs text-gray-500">View saved products</p>
+                    </div>
+                </a>
+
+                {% if request.user.is_authenticated %}
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="w-full flex items-center gap-4 bg-[var(--glass-bg)] border border-[var(--glass-border)] p-4 rounded-2xl hover:bg-red-500/10 transition-colors group">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-gray-800 text-gray-400 group-hover:text-red-500 flex items-center justify-center text-xl transition-colors">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </div>
+                        <div class="text-left">
+                            <p class="text-white font-bold">Sign Out</p>
+                            <p class="text-xs text-gray-500">Logged in as {{ request.user.username }}</p>
+                        </div>
+                    </button>
+                </form>
+                {% else %}
+                <a href="{% url 'login' %}"
+                    class="flex items-center gap-4 bg-[var(--glass-bg)] border border-[var(--glass-border)] p-4 rounded-2xl hover:bg-[rgba(255,255,255,0.05)] transition-colors">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center text-xl">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div>
+                        <p class="text-white font-bold">Sign In / Register</p>
+                        <p class="text-xs text-gray-500">Manage orders & saves</p>
+                    </div>
+                </a>
+                {% endif %}
+
+                {% if request.user.is_staff %}
+                <a href="{% url 'dashboard:home' %}"
+                    class="flex items-center gap-4 bg-[var(--glass-bg)] border border-[var(--glass-border)] p-4 rounded-2xl hover:bg-[rgba(255,255,255,0.05)] transition-colors">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-accent-primary/10 text-accent-primary flex items-center justify-center text-xl">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <p class="text-white font-bold">Admin Dashboard</p>
+                </a>
+                {% endif %}
+            </div>
+
+            <div class="mt-auto pt-8 flex flex-col items-center">
+                <h3 class="text-xl font-heading font-bold text-text-secondary opacity-50"><span
+                        class="highlight">WILLY</span>STORE</h3>
+                <p class="text-xs text-text-secondary/50 mt-1">Premium Kigali Fashion</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide-Out Cart Drawer -->
+    <div x-show="cartOpen" class="fixed inset-0 z-50 overflow-hidden" style="display: none;">
+        <!-- Background Overlay -->
+        <div x-show="cartOpen" x-transition.opacity.duration.300ms class="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            @click="cartOpen = false"></div>
+
+        <!-- Drawer Panel -->
+        <div x-show="cartOpen" x-transition:enter="transform transition ease-in-out duration-300"
+            x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
+            x-transition:leave="transform transition ease-in-out duration-300" x-transition:leave-start="translate-x-0"
+            x-transition:leave-end="translate-x-full"
+            class="absolute inset-y-0 right-0 w-full max-w-md bg-[var(--bg-color)] border-l border-[var(--glass-border)] shadow-2xl flex flex-col">
+            <!-- Header -->
+            <div
+                class="flex items-center justify-between p-6 border-b border-[var(--glass-border)] bg-[rgba(255,255,255,0.02)]">
+                <h2 class="text-xl font-heading font-bold text-white flex items-center gap-2">
+                    <i class="fas fa-shopping-cart text-accent-secondary"></i> Your Cart
+                    <span class="bg-accent-primary text-white text-xs px-2 py-0.5 rounded-full"
+                        x-text="cartCount"></span>
+                </h2>
+                <button @click="cartOpen = false"
+                    class="text-text-secondary hover:text-white transition-colors hover:rotate-90 transform duration-200">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+
+            <!-- Cart Items (Fetched HTML) -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar" x-html="cartHTML"></div>
+
+            <!-- Footer -->
+            <div class="p-6 border-t border-[var(--glass-border)] bg-[#121212] flex flex-col gap-3">
+                <a href="{% url 'orders:order_create' %}"
+                    class="w-full text-center bg-white text-black font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:bg-gray-200 transition-colors">Safely
+                    Checkout</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div x-show="cartToast" x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 translate-y-2 sm:translate-y-0 sm:translate-x-2"
+        x-transition:enter-end="opacity-100 translate-y-0 sm:translate-x-0"
+        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed bottom-24 sm:bottom-10 right-4 sm:right-10 z-[100] max-w-sm w-full bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden"
+        style="display: none;">
+        <div class="p-4 flex items-start gap-4">
+            <div class="flex-shrink-0">
+                <i class="fas fa-check-circle text-emerald-500 text-2xl"></i>
+            </div>
+            <div class="flex-1 pt-0.5">
+                <p class="text-sm font-bold text-gray-900">Success!</p>
+                <p class="text-sm text-gray-500 mt-1" x-text="toastMessage"></p>
+            </div>
+            <div class="flex-shrink-0 flex">
+                <button @click="cartToast = false" class="text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

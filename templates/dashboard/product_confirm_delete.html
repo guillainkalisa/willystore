@@ -1,0 +1,34 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Delete Product - Willystore Admin{% endblock %}
+{% block header_title %}Delete Product{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto mt-12">
+    <div class="glassmorphism rounded-2xl border border-red-500/30 p-8 text-center relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-red-600"></div>
+
+        <div class="w-20 h-20 mx-auto bg-red-500/10 rounded-full flex items-center justify-center mb-6">
+            <i class="fas fa-exclamation-triangle text-4xl text-red-500"></i>
+        </div>
+
+        <h2 class="text-3xl font-heading font-bold text-white mb-4">Are you sure?</h2>
+        <p class="text-text-secondary text-lg mb-8">
+            You are about to delete the product <strong class="text-white">"{{ product.title }}"</strong>.
+            This action cannot be undone and will remove it from the store completely.
+        </p>
+
+        <form method="post" class="flex items-center justify-center gap-4">
+            {% csrf_token %}
+            <a href="{% url 'dashboard:product_list' %}"
+                class="px-6 py-3 rounded-xl text-sm font-medium border border-[var(--glass-border)] text-text-secondary hover:text-white hover:bg-[var(--glass-bg)] transition-all">
+                Cancel
+            </a>
+            <button type="submit"
+                class="px-6 py-3 rounded-xl text-sm font-bold bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20 transition-all">
+                Yes, Delete Product
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

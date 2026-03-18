@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.title }} | Willystore{% endblock %}
+
+{% block content %}
+<div class="flex flex-col lg:flex-row gap-8 lg:gap-16 mt-0 lg:mt-6 items-start -mx-4 sm:mx-0">
+    <!-- Image Header Section (Sneaker App Style with orange glow) -->
+    <div
+        class="w-full lg:w-1/2 relative min-h-[50vh] flex items-center justify-center p-8 bg-white sm:rounded-3xl border-b border-gray-100 sm:border pt-20">
+
+        <!-- Back Button & Cart Icon (Mobile overlay) -->
+        <div class="absolute top-6 left-6 z-20 md:hidden">
+            <a href="javascript:history.back()" class="text-2xl text-black hover:text-gray-600"><i
+                    class="fas fa-chevron-left"></i></a>
+        </div>
+        <div class="absolute top-6 right-6 z-20 md:hidden">
+            <a href="{% url 'cart:cart_detail' %}" class="relative text-2xl text-black hover:text-gray-600">
+                <i class="fas fa-shopping-bag"></i>
+                {% with total_items=cart|length %}
+                {% if total_items > 0 %}
+                <span
+                    class="absolute -top-1 -right-1 bg-green-500 text-white text-[8px] font-bold w-3 h-3 flex items-center justify-center rounded-full border border-white">
+                    <i class="fas fa-check"></i>
+                </span>
+                {% endif %}
+                {% endwith %}
+            </a>
+        </div>
+
+        <!-- Orange Gradient Background Decoration -->
+        <div class="absolute inset-0 z-0 overflow-hidden sm:rounded-3xl">
+            <div
+                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-[150%] bg-gradient-to-tr from-orange-400/80 via-white to-orange-100 opacity-60 rounded-full blur-3xl transform -rotate-12">
+            </div>
+            <!-- Decorative Text watermark -->
+            <div
+                class="absolute top-1/4 -right-10 text-8xl font-heading font-extrabold text-white/40 -rotate-[30deg] pointer-events-none whitespace-nowrap hidden sm:block">
+                WILLYSTORE</div>
+            <div
+                class="absolute top-10 left-10 bg-black text-white text-xs font-bold px-3 py-3 rounded-full flex flex-col items-center justify-center w-12 h-12 shadow-lg z-10">
+                <span class="leading-none">30%</span><span class="text-[8px] leading-none">Off</span>
+            </div>
+        </div>
+
+        {% if product.main_image %}
+        <img id="main-product-image" src="{{ product.main_image.url }}" alt="{{ product.title }}"
+            class="relative z-10 w-full max-w-sm object-contain drop-shadow-[0_20px_20px_rgba(0,0,0,0.5)] transform -rotate-[15deg] hover:rotate-0 transition-transform duration-700">
+        {% else %}
+        <img id="main-product-image"
+            src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2070&auto=format&fit=crop"
+            alt="{{ product.title }}"
+            class="relative z-10 w-full max-w-sm object-contain drop-shadow-[0_20px_20px_rgba(0,0,0,0.5)] transform -rotate-[15deg] hover:rotate-0 transition-transform duration-700">
+        {% endif %}
+
+        <!-- Image Pagination Dots -->
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+            <span class="w-2 h-2 rounded-full bg-gray-300"></span>
+            <span class="w-2 h-2 rounded-full bg-gray-300"></span>
+        </div>
+    </div>
+
+    <!-- Product Details -->
+    <div
+        class="w-full lg:w-1/2 bg-white flex flex-col p-6 sm:p-8 sm:rounded-3xl sm:shadow-sm sm:border sm:border-gray-100">
+        <div class="mb-6 flex justify-between items-start gap-4">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-heading font-extrabold text-[#111827] mb-1">{{ product.title }}
+                </h1>
+                <p class="text-sm font-bold text-gray-500 mb-3">{{ product.category.title }}</p>
+                <div class="bg-gray-500 text-white text-sm font-bold px-3 py-1.5 rounded-md inline-block">MRP : RWF {{ product.price }}</div>
+            </div>
+
+            <!-- Favorite (Heart) Icon -->
+            <button x-data="{ isFavorite: {{ is_favorite|yesno:'true,false' }} }" @click.prevent="
+                    {% if not request.user.is_authenticated %}
+                        window.location.href = '{% url 'login' %}';
+                    {% else %}
+                        fetch('{% url 'store:toggle_favorite' product.id %}', {
+                            method: 'POST',
+                            headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+                        })
+                        .then(r => r.json())
+                        .then(data => { if(data.status) isFavorite = !isFavorite });
+                    {% endif %}
+                "
+                :class="isFavorite ? 'text-red-500 bg-red-50 border-red-200' : 'text-gray-400 hover:text-red-500 bg-gray-50 border-gray-200 hover:border-red-200'"
+                class="w-12 h-12 flex items-center justify-center rounded-full shadow-sm border transition-colors flex-shrink-0 mt-1">
+                <i class="fas fa-heart text-xl" x-show="isFavorite" style="display:none;"></i>
+                <i class="far fa-heart text-xl" x-show="!isFavorite"></i>
+            </button>
+        </div>
+
+        <div class="text-sm text-gray-600 mb-8 pb-6 border-b border-gray-100">
+            Available Options
+            <div class="flex gap-4 mt-3">
+                <div
+                    class="w-16 h-16 bg-gray-100 rounded-xl p-1 border-2 border-transparent hover:border-black cursor-pointer transition-colors scale-105 shadow-sm">
+                    <img src="{% if product.main_image %}{{ product.main_image.url }}{% else %}https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=200&auto=format&fit=crop{% endif %}"
+                        class="w-full h-full object-contain">
+                </div>
+                <div
+                    class="w-16 h-16 bg-gray-100 rounded-xl p-1 border-2 border-transparent hover:border-black cursor-pointer transition-colors opacity-70">
+                    <img src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?q=80&w=200&auto=format&fit=crop"
+                        class="w-full h-full object-contain">
+                </div>
+                <!-- Example disabled option -->
+                <div
+                    class="w-16 h-16 bg-gray-100 rounded-xl p-1 border-2 border-transparent relative opacity-50 cursor-not-allowed">
+                    <div class="absolute inset-0 flex items-center justify-center z-10">
+                        <div class="w-full h-[1px] bg-black rotate-45 transform origin-center absolute"></div>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=200&auto=format&fit=crop"
+                        class="w-full h-full object-contain opacity-50">
+                </div>
+            </div>
+        </div>
+
+        <!-- Add to Cart Form -->
+        <form action="{% url 'cart:cart_add' product.id %}" method="post" x-data="{ submitAction: 'add_cart' }"
+            @submit.prevent="
+                if (submitAction === 'buy_now') {
+                    $el.submit();
+                } else {
+                    let formData = new FormData($el);
+                    fetch($el.action, {
+                        method: 'POST',
+                        headers: { 'Accept': 'application/json' },
+                        body: formData
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        cartCount = data.cart_total_items;
+                        fetchCart(); 
+                        cartOpen = true;
+                    });
+                }
+            " class="mt-4 flex flex-col sm:flex-row gap-4 items-stretch sm:items-end flex-wrap">
+            {% csrf_token %}
+
+            <!-- Sneaker App Style Sizing Toggles -->
+            <div class="mb-8" x-data="{ selectedSystem: 'UK', selectedSize: '8' }">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="font-bold text-[#111827] mr-2">Size:</span>
+                    <button type="button" @click="selectedSystem = 'UK'"
+                        :class="selectedSystem === 'UK' ? 'bg-gray-200 text-black font-bold' : 'bg-gray-100 text-gray-500 font-medium'"
+                        class="px-3 py-1 rounded text-sm transition-colors">UK</button>
+                    <button type="button" @click="selectedSystem = 'EU'"
+                        :class="selectedSystem === 'EU' ? 'bg-gray-200 text-black font-bold' : 'bg-gray-100 text-gray-500 font-medium'"
+                        class="px-3 py-1 rounded text-sm transition-colors">EU</button>
+                    <button type="button" @click="selectedSystem = 'US'"
+                        :class="selectedSystem === 'US' ? 'bg-gray-200 text-black font-bold' : 'bg-gray-100 text-gray-500 font-medium'"
+                        class="px-3 py-1 rounded text-sm transition-colors">US</button>
+                </div>
+
+                <div class="flex gap-2 flex-wrap">
+                    <button type="button" @click="selectedSize = '8'"
+                        :class="selectedSize === '8' ? 'bg-gray-300 border-gray-400' : 'bg-gray-100 border-transparent'"
+                        class="w-10 h-10 flex items-center justify-center font-bold text-[#111827] rounded shadow-sm border transition-colors">8</button>
+                    <button type="button" @click="selectedSize = '9'"
+                        :class="selectedSize === '9' ? 'bg-gray-300 border-gray-400' : 'bg-gray-100 border-transparent'"
+                        class="w-10 h-10 flex items-center justify-center font-bold text-[#111827] rounded shadow-sm border transition-colors">9</button>
+                    <button type="button" @click="selectedSize = '10'"
+                        :class="selectedSize === '10' ? 'bg-gray-300 border-gray-400' : 'bg-gray-100 border-transparent'"
+                        class="w-10 h-10 flex items-center justify-center font-bold text-[#111827] rounded shadow-sm border transition-colors">10</button>
+
+                    <!-- Disabled size example -->
+                    <button type="button" disabled
+                        class="w-10 h-10 flex items-center justify-center font-bold text-gray-400 rounded shadow-sm relative overflow-hidden bg-gray-100 cursor-not-allowed">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-full h-[1px] bg-gray-300 rotate-45 transform origin-center absolute"></div>
+                        </div>
+                        11
+                    </button>
+                </div>
+                <!-- Hidden inputs to submit selection -->
+                <input type="hidden" name="size_system" x-model="selectedSystem">
+                <input type="hidden" name="size" x-model="selectedSize">
+            </div>
+
+            <!-- Quantity hidden for the Sneaker App aesthetic, default to 1 -->
+            <input type="hidden" name="quantity" value="1">
+
+            <!-- Dual Action Buttons -->
+            <div class="flex gap-3 mt-4">
+                <button type="submit" @click="submitAction = 'buy_now'" name="action" value="buy_now"
+                    class="flex-1 bg-[#1a1a1a] text-white font-bold py-3.5 px-4 rounded-full shadow-lg hover:bg-black transition-colors text-sm sm:text-base">
+                    Buy now
+                </button>
+                <button type="submit" @click="submitAction = 'add_cart'" name="action" value="add_cart"
+                    class="flex-1 bg-gray-500 text-white font-bold py-3.5 px-4 rounded-full shadow-lg hover:bg-gray-600 transition-colors text-sm sm:text-base">
+                    Add to cart
+                </button>
+            </div>
+        </form>
+
+        <!-- Description appended below actions for layout neatness -->
+        <div class="mt-8 pt-6 border-t border-gray-100">
+            <h3 class="font-bold text-[#111827] mb-2 uppercase text-xs tracking-wider">Product Description</h3>
+            <div class="text-sm text-gray-500 leading-relaxed">
+                {{ product.description|default:"Step into premium comfort and unparalleled style. Exclusively available in Kigali."|linebreaks }}
+            </div>
+        </div>
+
+        <!-- Ratings & Reviews Block -->
+        <div class="mt-10 pt-8 border-t border-gray-100" x-data="{ 
+            reviewMode: false, 
+            rating: 0, 
+            hoverRating: 0, 
+            comment: '', 
+            submitReview() {
+                if (this.rating === 0 || this.comment.trim() === '') {
+                    alert('Please provide both a rating and a comment!');
+                    return;
+                }
+                let formData = new URLSearchParams();
+                formData.append('rating', this.rating);
+                formData.append('comment', this.comment);
+
+                fetch('{% url 'store:add_review' product.id %}', {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        window.location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                });
+            }
+        }">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-bold text-[#111827] uppercase text-xs tracking-wider">Customer Reviews <span
+                        class="text-gray-400 capitalize normal-case text-xs ml-2">({{ reviews|length }} reviews)</span>
+                </h3>
+                {% if request.user.is_authenticated %}
+                <button @click="reviewMode = !reviewMode"
+                    class="text-xs font-bold text-accent-primary hover:text-accent-secondary transition-colors"
+                    x-text="reviewMode ? 'Cancel' : 'Write a Review'"></button>
+                {% endif %}
+            </div>
+
+            <!-- Write Review Form -->
+            <div x-show="reviewMode" x-collapse class="mb-8" style="display: none;">
+                <div class="p-5 bg-gray-50 rounded-2xl border border-gray-100">
+                    <h4 class="font-bold text-[#111827] text-sm mb-3">Rate this product</h4>
+                    <div class="flex gap-1 mb-4">
+                        <template x-for="i in 5">
+                            <i class="fa-star text-2xl cursor-pointer transition-colors"
+                                :class="(hoverRating >= i || rating >= i) ? 'fas text-yellow-400' : 'far text-gray-300'"
+                                @mouseover="hoverRating = i" @mouseleave="hoverRating = 0" @click="rating = i"></i>
+                        </template>
+                    </div>
+                    <textarea x-model="comment" rows="3"
+                        class="w-full bg-white border border-gray-200 rounded-xl py-3 px-4 text-[#111827] focus:border-accent-primary outline-none transition-colors text-sm mb-3 resize-none shadow-inner"
+                        placeholder="Tell others what you think about this product..."></textarea>
+                    <button @click="submitReview()"
+                        class="bg-[#111827] text-white font-bold text-sm px-6 py-3 rounded-full shadow-md hover:bg-black transition-colors w-full sm:w-auto">Submit
+                        Review</button>
+                </div>
+            </div>
+
+            {% if not request.user.is_authenticated %}
+            <div class="mb-8 text-sm text-gray-500 bg-gray-50 p-4 rounded-xl text-center border border-gray-100">
+                Please <a href="{% url 'login' %}?next={{ request.path }}"
+                    class="font-bold text-accent-primary hover:underline">sign in</a> to drop a rating.
+            </div>
+            {% endif %}
+
+            <div class="space-y-6">
+                {% for review in reviews %}
+                <div class="flex gap-4">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gray-200 text-gray-500 font-bold flex items-center justify-center flex-shrink-0 uppercase shadow-inner border border-white">
+                        {{ review.user.username|make_list|first }}
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="font-bold text-[#111827] text-sm">{{ review.user.username }}</span>
+                            <span class="text-xs text-gray-400">&bull; {{ review.created_at|timesince }} ago</span>
+                        </div>
+                        <div class="flex gap-0.5 text-yellow-400 text-[10px] mb-2">
+                            {% for _ in "12345"|make_list %}
+                            <i
+                                class="{% if forloop.counter <= review.rating %}fas{% else %}far text-gray-300{% endif %} fa-star"></i>
+                            {% endfor %}
+                        </div>
+                        <p class="text-sm text-gray-600 leading-relaxed">{{ review.comment }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-sm text-gray-500 italic">This product has not been reviewed yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

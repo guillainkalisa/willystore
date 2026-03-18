@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}My Wishlist | Willystore{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 mb-12">
+    <div class="py-8 text-center sm:text-left">
+        <h1 class="text-3xl font-heading font-extrabold text-white">My Wishlist</h1>
+        <p class="text-gray-400 mt-2 font-bold">Your uniquely saved items</p>
+    </div>
+
+    <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {% for product in products %}
+        <a href="{{ product.get_absolute_url }}"
+            class="flex flex-col bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group">
+
+            <!-- Top Half -->
+            <div
+                class="relative h-44 sm:h-56 w-full p-2 bg-[#f0f0f0] rounded-t-3xl rounded-b-xl flex items-center justify-center">
+
+                <!-- Favorite (Heart) Icon Top Left -->
+                <button x-data="{ isFavorite: true }" @click.prevent="
+                        fetch('{% url 'store:toggle_favorite' product.id %}', {
+                            method: 'POST',
+                            headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+                        })
+                        .then(r => r.json())
+                        .then(data => { if(data.status) isFavorite = !isFavorite });
+                    " :class="isFavorite ? 'text-red-500' : 'text-gray-400 hover:text-red-500'"
+                    class="absolute top-3 left-3 w-8 h-8 flex items-center justify-center transition-colors z-10 bg-white/70 backdrop-blur-md rounded-full shadow-sm border border-gray-200">
+                    <i class="fas fa-heart text-sm" x-show="isFavorite"></i>
+                    <i class="far fa-heart text-sm" x-show="!isFavorite" style="display:none;"></i>
+                </button>
+
+                <!-- Product Image centered -->
+                <div class="w-[85%] h-[85%] relative">
+                    {% if product.main_image %}
+                    <img src="{{ product.main_image.url }}" alt="{{ product.title }}"
+                        class="w-full h-full object-contain filter drop-shadow-lg group-hover:scale-110 transition-transform duration-500">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2070&auto=format&fit=crop"
+                        alt="Placeholder Product image"
+                        class="w-full h-full object-contain filter drop-shadow-lg group-hover:scale-110 transition-transform duration-500">
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Bottom Half: Details -->
+            <div class="p-3 pt-4 bg-white flex flex-col flex-grow">
+                <!-- Left-aligned Title -->
+                <h3 class="text-sm font-heading font-extrabold text-[#111827] line-clamp-1 mb-0.5">{{ product.title }}</h3>
+                <p class="text-[10px] text-gray-500 mb-2 font-bold">{{ product.category.title }}</p>
+
+                <!-- MRP Pricing Formatting -->
+                <span class="text-[11px] font-bold text-[#111827] px-0 py-1 rounded-sm">MRP : RWF {{ product.price }}</span>
+            </div>
+        </a>
+        {% empty %}
+        <div class="col-span-full py-20 text-center">
+            <div class="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-heart-broken text-4xl text-gray-500"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-2">Your wishlist is empty</h3>
+            <p class="text-gray-400 mb-8">Save items you love and they will show up here.</p>
+            <a href="{% url 'store:product_list' %}"
+                class="bg-white text-black font-bold py-3 px-8 rounded-full hover:bg-gray-200 transition-colors">Start
+                Shopping</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

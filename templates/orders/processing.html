@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Processing Payment | Willystore{% endblock %}
+
+{% block content %}
+<div class="min-h-[70vh] flex items-center justify-center p-4">
+    <div class="glass-card max-w-lg w-full p-8 text-center" x-data="paymentPoller()">
+
+        <!-- Loading State -->
+        <div x-show="status === 'PENDING'" class="flex flex-col items-center">
+            <div class="relative w-24 h-24 mb-8">
+                <div class="absolute inset-0 border-4 border-[var(--glass-border)] rounded-full"></div>
+                <div class="absolute inset-0 border-4 border-yellow-400 rounded-full border-t-transparent animate-spin">
+                </div>
+                <i
+                    class="fas fa-mobile-alt absolute inset-0 m-auto flex items-center justify-center text-3xl text-yellow-400 animate-pulse"></i>
+            </div>
+
+            <h2 class="text-3xl font-heading font-bold text-white mb-3">Check your phone</h2>
+            <p class="text-gray-400 mb-6 text-sm">
+                We've sent a payment request to <strong class="text-white">{{ order.phone }}</strong>.
+                Please enter your MoMo PIN to authorize RWF {{ order.get_total_cost|floatformat:0 }}.
+            </p>
+
+            <div class="bg-black/30 rounded-xl p-4 border border-white/5 max-w-sm mx-auto w-full">
+                <p class="text-xs text-uppercase tracking-widest text-gray-500 font-bold mb-2">Status</p>
+                <div class="flex items-center justify-center gap-3 text-yellow-500 font-bold animate-pulse">
+                    <i class="fas fa-circle text-[8px]"></i>
+                    Awaiting authorization...
+                </div>
+            </div>
+        </div>
+
+        <!-- Success State -->
+        <div x-show="status === 'SUCCESSFUL'" style="display: none;" class="flex flex-col items-center">
+            <div
+                class="w-24 h-24 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center text-4xl mb-6 shadow-lg border border-emerald-500/30">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2 class="text-3xl font-heading font-bold text-white mb-2">Payment Received!</h2>
+            <p class="text-gray-400 mb-8">Thank you, your order #{{ order.id }} is confirmed.</p>
+            <a href="{% url 'store:product_list' %}" class="btn-primary w-full shadow-emerald-500/20">
+                Continue Shopping
+            </a>
+        </div>
+
+        <!-- Failure State -->
+        <div x-show="status === 'FAILED'" style="display: none;" class="flex flex-col items-center">
+            <div
+                class="w-24 h-24 bg-red-500/20 text-red-400 rounded-full flex items-center justify-center text-4xl mb-6 shadow-lg border border-red-500/30">
+                <i class="fas fa-times"></i>
+            </div>
+            <h2 class="text-3xl font-heading font-bold text-white mb-2">Payment Failed</h2>
+            <p class="text-gray-400 mb-8">The transaction timed out or was declined.</p>
+            <a href="{% url 'store:product_list' %}"
+                class="w-full py-4 rounded-xl border border-white/10 text-white font-bold hover:bg-white/5 transition-colors">
+                Return to Shop
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('paymentPoller', () => ({
+            status: 'PENDING',
+            interval: null,
+
+            init() {
+                this.pollStatus();
+            },
+
+            pollStatus() {
+                this.interval = setInterval(() => {
+                    fetch('{% url "orders:check_payment_status" order.id %}')
+                        .then(r => r.json())
+                        .then(data => {
+                            this.status = data.status;
+                            if (data.status === 'SUCCESSFUL' || data.status === 'FAILED') {
+                                clearInterval(this.interval);
+                            }
+                        })
+                        .catch(err => console.error('Polling error', err));
+                }, 2500); // Check every 2.5 seconds
+            }
+        }));
+    });
+</script>
+{% endblock %}

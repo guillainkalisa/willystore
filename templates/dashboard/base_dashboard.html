@@ -1,0 +1,151 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Willystore Admin Dashboard{% endblock %}</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bg-color': '#0d0f17',
+                        'accent-primary': '#6d28d9',
+                        'accent-secondary': '#0ea5e9',
+                        'text-secondary': '#a0a5ba'
+                    },
+                    fontFamily: {
+                        'heading': ['Outfit', 'sans-serif'],
+                        'body': ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-bg-color text-white font-body min-h-screen flex flex-col md:flex-row overflow-x-hidden"
+    x-data="{ sidebarOpen: false }">
+    <!-- Background Elements -->
+    <div class="bg-blur top-left fixed pointer-events-none z-[-1]"></div>
+    <div class="bg-blur bottom-right fixed pointer-events-none z-[-1]"></div>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div x-show="sidebarOpen" @click="sidebarOpen = false"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden transition-opacity" x-transition.opacity
+        style="display: none;"></div>
+
+    <!-- Sidebar -->
+    <aside
+        class="fixed md:sticky top-0 left-0 h-screen w-64 glassmorphism border-r border-[var(--glass-border)] flex-shrink-0 z-50 transition-transform duration-300 ease-in-out md:translate-x-0 overflow-hidden flex flex-col"
+        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
+        <div class="flex items-center justify-between p-6 border-b border-[var(--glass-border)] flex-shrink-0">
+            <a href="{% url 'dashboard:home' %}" class="text-2xl font-heading font-extrabold tracking-tight">
+                <span class="highlight">WILLY</span>ADMIN
+            </a>
+            <button @click="sidebarOpen = false" class="md:hidden text-text-secondary hover:text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto px-4 py-6 space-y-2 custom-scrollbar">
+            <a href="{% url 'dashboard:home' %}"
+                class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all {% if request.resolver_match.url_name == 'home' %}bg-gradient-to-r from-accent-primary to-accent-secondary text-white shadow-lg shadow-accent-primary/20{% else %}text-text-secondary hover:bg-[var(--glass-bg)] hover:text-white{% endif %}">
+                <i class="fas fa-home w-5 text-center"></i>
+                <span class="font-medium">Overview</span>
+            </a>
+            <a href="{% url 'dashboard:product_list' %}"
+                class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all {% if 'product' in request.resolver_match.url_name %}bg-gradient-to-r from-accent-primary to-accent-secondary text-white shadow-lg shadow-accent-primary/20{% else %}text-text-secondary hover:bg-[var(--glass-bg)] hover:text-white{% endif %}">
+                <i class="fas fa-box w-5 text-center"></i>
+                <span class="font-medium">Products</span>
+            </a>
+            <a href="{% url 'dashboard:category_list' %}"
+                class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all {% if 'category' in request.resolver_match.url_name %}bg-gradient-to-r from-accent-primary to-accent-secondary text-white shadow-lg shadow-accent-primary/20{% else %}text-text-secondary hover:bg-[var(--glass-bg)] hover:text-white{% endif %}">
+                <i class="fas fa-tags w-5 text-center"></i>
+                <span class="font-medium">Categories</span>
+            </a>
+            <a href="{% url 'dashboard:order_list' %}"
+                class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all {% if 'order' in request.resolver_match.url_name %}bg-gradient-to-r from-accent-primary to-accent-secondary text-white shadow-lg shadow-accent-primary/20{% else %}text-text-secondary hover:bg-[var(--glass-bg)] hover:text-white{% endif %}">
+                <i class="fas fa-shopping-cart w-5 text-center"></i>
+                <span class="font-medium">Orders</span>
+            </a>
+
+            <div class="mt-8 pt-6 border-t border-[var(--glass-border)]">
+                <a href="{% url 'store:product_list' %}" target="_blank"
+                    class="flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-text-secondary hover:bg-[var(--glass-bg)] hover:text-accent-secondary">
+                    <i class="fas fa-external-link-alt w-5 text-center"></i>
+                    <span class="font-medium">View Store</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 w-full min-w-0 overflow-y-auto min-h-screen pb-12 transition-all relative">
+        <!-- Topbar -->
+        <header
+            class="glassmorphism sticky top-0 z-30 border-b border-[var(--glass-border)] px-4 sm:px-6 py-4 flex justify-between items-center backdrop-blur-xl">
+            <div class="flex items-center gap-3">
+                <button @click="sidebarOpen = true" class="md:hidden text-text-secondary hover:text-white p-2 -ml-2">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <h1
+                    class="text-lg sm:text-xl md:text-2xl font-heading font-bold text-white truncate max-w-[200px] sm:max-w-none">
+                    {% block header_title %}Dashboard{% endblock %}
+                </h1>
+            </div>
+            <div class="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+                <div
+                    class="w-10 h-10 rounded-full bg-gradient-to-br from-accent-primary to-accent-secondary flex items-center justify-center text-white font-bold shadow-lg shadow-accent-primary/30 cursor-pointer hover:scale-105 transition-transform">
+                    {{ request.user.username|make_list|first|upper }}
+                </div>
+            </div>
+        </header>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="p-6 pb-0 max-w-7xl mx-auto z-50 relative">
+            {% for message in messages %}
+            <div class="px-6 py-4 rounded-xl border mb-4 flex items-center justify-between glassmorphism"
+                x-data="{ show: true }" x-show="show" x-transition.opacity {% if message.tags == 'success' %}
+                style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3);" {% elif
+                message.tags == 'error' %}
+                style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3);" {% else %}
+                style="background: rgba(14, 165, 233, 0.1); border-color: rgba(14, 165, 233, 0.3);" {% endif %}>
+                <div class="flex items-center gap-3">
+                    {% if message.tags == 'success' %}
+                    <i class="fas fa-check-circle text-emerald-400"></i>
+                    {% elif message.tags == 'error' %}
+                    <i class="fas fa-exclamation-circle text-red-400"></i>
+                    {% else %}
+                    <i class="fas fa-info-circle text-sky-400"></i>
+                    {% endif %}
+                    <span class="text-white font-medium">{{ message }}</span>
+                </div>
+                <button @click="show = false" class="text-white/60 hover:text-white focus:outline-none">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Content Area -->
+        <div class="p-4 sm:p-6 max-w-7xl mx-auto w-full relative z-20">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

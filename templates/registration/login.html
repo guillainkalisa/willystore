@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In | Willystore{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-[70vh] px-4">
+    <div
+        class="w-full max-w-md p-8 sm:p-10 bg-[#1a1a1a] rounded-3xl shadow-2xl border border-gray-800 relative overflow-hidden">
+        <!-- Decoration -->
+        <div
+            class="absolute -top-10 -right-10 w-40 h-40 bg-accent-primary/20 rounded-full blur-3xl pointer-events-none">
+        </div>
+        <div
+            class="absolute -bottom-10 -left-10 w-40 h-40 bg-accent-secondary/20 rounded-full blur-3xl pointer-events-none">
+        </div>
+
+        <div class="relative z-10 text-center mb-8">
+            <h1 class="text-3xl font-heading font-extrabold text-white mb-2">Welcome Back</h1>
+            <p class="text-sm font-bold text-gray-500">Sign in to sync your wishlist and orders.</p>
+        </div>
+
+        <form method="post" class="relative z-10 flex flex-col gap-5">
+            {% csrf_token %}
+            {% if form.errors %}
+            <div class="bg-red-500/10 border border-red-500 text-red-500 text-xs font-bold p-3 rounded-lg text-center">
+                Invalid username or password.
+            </div>
+            {% endif %}
+
+            <div class="flex flex-col gap-1.5">
+                <label for="username"
+                    class="text-xs font-bold text-gray-400 uppercase tracking-widest pl-1">Username</label>
+                <input type="text" name="username" id="username" required
+                    class="w-full bg-black/50 border border-gray-800 rounded-xl py-3 px-4 text-white focus:bg-black focus:border-accent-primary outline-none transition-colors font-bold">
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+                <div class="flex justify-between items-end">
+                    <label for="password"
+                        class="text-xs font-bold text-gray-400 uppercase tracking-widest pl-1">Password</label>
+                </div>
+                <input type="password" name="password" id="password" required
+                    class="w-full bg-black/50 border border-gray-800 rounded-xl py-3 px-4 text-white focus:bg-black focus:border-accent-primary outline-none transition-colors font-bold">
+            </div>
+
+            <button type="submit"
+                class="mt-4 w-full bg-white text-black font-extrabold text-lg py-4 rounded-xl hover:bg-gray-200 transition-colors shadow-lg">
+                Sign In
+            </button>
+        </form>
+
+        <p class="relative z-10 mt-8 text-center text-sm font-bold text-gray-500">
+            New to Willystore?
+            <a href="{% url 'store:register' %}"
+                class="text-white hover:text-accent-secondary transition-colors border-b border-transparent hover:border-white">Create
+                Account</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

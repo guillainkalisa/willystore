@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section (Sneaker App Style) -->
+{% if not category %}
+<section class="max-w-7xl mx-auto px-4 mt-6 mb-8">
+    <div
+        class="relative bg-gradient-to-br from-gray-300 to-gray-400 rounded-3xl overflow-hidden p-6 sm:p-10 flex items-center justify-between shadow-lg">
+        <div class="relative z-10 w-1/2">
+            <span class="text-xs sm:text-sm font-bold text-gray-800 uppercase tracking-wider mb-1 block">New
+                Release</span>
+            <h1 class="text-2xl sm:text-4xl font-heading font-extrabold text-[#111827] leading-tight mb-2">
+                Premium Collection
+            </h1>
+            <p class="text-xs sm:text-sm text-gray-700 mb-6 max-w-xs">
+                Kigali Style
+            </p>
+            <a href="#shop"
+                class="inline-block bg-[#db5b5b] text-white text-xs sm:text-sm font-bold px-6 py-2.5 rounded-full shadow-md hover:bg-[#c94b4b] transition-colors">
+                Shop Now
+            </a>
+        </div>
+
+        <!-- Abstract Decoration / Image placeholder -->
+        <div class="absolute right-0 top-1/2 -translate-y-1/2 w-[60%] h-[120%] opacity-80 pointer-events-none">
+            <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2070&auto=format&fit=crop"
+                class="w-full h-full object-cover object-left mask-image-circle"
+                style="-webkit-mask-image: radial-gradient(circle, black 30%, transparent 70%); mask-image: radial-gradient(circle, black 30%, transparent 70%);">
+        </div>
+
+        <!-- Background Text Overlay -->
+        <div
+            class="absolute inset-0 flex items-center justify-center opacity-10 font-heading font-extrabold text-white text-7xl sm:text-9xl tracking-tighter whitespace-nowrap pointer-events-none -skew-y-3">
+            WILLYSTORE
+        </div>
+    </div>
+</section>
+
+<!-- Circular Categories Selectors -->
+<div class="max-w-7xl mx-auto px-4 mb-6">
+    <div class="flex items-start gap-4 sm:gap-6 overflow-x-auto pb-4 custom-scrollbar">
+        <!-- 'All' Category -->
+        <a href="{% url 'store:product_list' %}" class="flex flex-col items-center gap-2 group min-w-[70px]">
+            <div
+                class="w-16 h-16 rounded-full flex items-center justify-center {% if not category %}border-2 border-white{% else %}border border-gray-700 bg-gray-800{% endif %} overflow-hidden transition-all group-hover:shadow-md">
+                <i class="fas fa-layer-group text-2xl text-gray-400"></i>
+            </div>
+            <span
+                class="text-xs font-bold text-center {% if not category %}text-white{% else %}text-gray-400{% endif %} mt-1">All</span>
+        </a>
+
+        {% for c in categories %}
+        <a href="{{ c.get_absolute_url }}" class="flex flex-col items-center gap-2 group min-w-[70px]">
+            <div
+                class="w-16 h-16 rounded-full flex items-center justify-center {% if category and category.id == c.id %}border-2 border-white{% else %}border border-gray-700 bg-gray-800{% endif %} overflow-hidden transition-all group-hover:shadow-md relative">
+                <!-- Using placeholder images or logic based on category name -->
+                {% if 'shoe' in c.title|lower %}
+                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=200&auto=format&fit=crop"
+                    class="w-full h-full object-cover">
+                {% elif 'shirt' in c.title|lower or 'clothe' in c.title|lower %}
+                <img src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=200&auto=format&fit=crop"
+                    class="w-full h-full object-cover">
+                {% else %}
+                <i class="fas fa-tag text-2xl text-gray-400"></i>
+                {% endif %}
+            </div>
+            <span
+                class="text-xs font-bold text-center {% if category and category.id == c.id %}text-white{% else %}text-gray-400{% endif %} line-clamp-2 leading-tight mt-1">{{ c.title }}</span>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Utility Buttons: Sort By & Filter -->
+<div class="max-w-7xl mx-auto px-4 mb-6 flex gap-3 relative" x-data="{ sortOpen: false, filterOpen: false }">
+
+    <!-- Sort By Button & Dropdown -->
+    <div class="relative">
+        <button @click="sortOpen = !sortOpen"
+            class="flex items-center gap-2 bg-[#2d2d2d] text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-black transition-colors shadow-sm">
+            Sort By <i class="fas fa-chevron-down text-[10px] transition-transform"
+                :class="{'rotate-180': sortOpen}"></i>
+        </button>
+        <!-- Dropdown Menu -->
+        <div x-show="sortOpen" @click.outside="sortOpen = false" style="display: none;"
+            x-transition:enter="transition ease-out duration-100"
+            x-transition:enter-start="transform opacity-0 scale-95"
+            x-transition:enter-end="transform opacity-100 scale-100"
+            class="absolute top-full left-0 mt-2 w-56 bg-[#2d2d2d] border border-black/20 rounded-xl shadow-2xl z-20 py-2">
+            <a :href="updateUrlParameter(window.location.href, 'sort', 'newest')"
+                class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-black font-semibold">Newest
+                Arrivals</a>
+            <a :href="updateUrlParameter(window.location.href, 'sort', 'price_low')"
+                class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-black font-semibold">Price: Low
+                to High</a>
+            <a :href="updateUrlParameter(window.location.href, 'sort', 'price_high')"
+                class="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-black font-semibold">Price: High
+                to Low</a>
+        </div>
+    </div>
+
+    <!-- Filter Button & Drawer Trigger -->
+    <button @click="filterOpen = true"
+        class="flex items-center gap-2 bg-[#2d2d2d] text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-black transition-colors shadow-sm">
+        Filter <i class="fas fa-sliders-h text-[10px]"></i>
+    </button>
+
+    <!-- Filter Slide-over Drawer -->
+    <div x-show="filterOpen" style="display: none;" class="fixed inset-0 z-50 overflow-hidden"
+        aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+        <div class="absolute inset-0 overflow-hidden">
+            <!-- Background overlay -->
+            <div x-show="filterOpen" x-transition:enter="ease-in-out duration-300" x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100" x-transition:leave="ease-in-out duration-300"
+                x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                class="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-sm transition-opacity"
+                @click="filterOpen = false"></div>
+
+            <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+                <!-- Slide-over panel -->
+                <div x-show="filterOpen"
+                    x-transition:enter="transform transition ease-in-out duration-300 sm:duration-500"
+                    x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
+                    x-transition:leave="transform transition ease-in-out duration-300 sm:duration-500"
+                    x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full"
+                    class="pointer-events-auto w-screen max-w-md">
+                    <div class="flex h-full flex-col bg-[#1a1a1a] shadow-xl pt-6">
+                        <div class="px-4 sm:px-6 flex justify-between items-center mb-8">
+                            <h2 class="font-heading font-extrabold text-2xl text-white">Filters</h2>
+                            <button @click="filterOpen = false"
+                                class="text-gray-400 hover:text-white text-2xl hover:rotate-90 transition-transform">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="relative flex-1 px-4 sm:px-6">
+                            <!-- Filter Form -->
+                            <form action="{% url 'store:product_list' %}" method="GET" class="flex flex-col gap-8">
+                                <input type="hidden" name="q" value="{{ current_filters.q }}">
+                                <input type="hidden" name="sort" value="{{ current_filters.sort }}">
+
+                                <div>
+                                    <label
+                                        class="block text-sm font-bold text-gray-300 mb-3 uppercase tracking-wider">Price
+                                        Range (RWF)</label>
+                                    <div class="flex items-center gap-4">
+                                        <input type="number" name="min_price" placeholder="Min"
+                                            value="{{ current_filters.min_price }}"
+                                            class="w-full bg-[#2d2d2d] border border-transparent rounded-xl py-3 px-4 text-white focus:bg-black focus:border-white outline-none transition-colors font-bold">
+                                        <span class="text-gray-500 font-bold">-</span>
+                                        <input type="number" name="max_price" placeholder="Max"
+                                            value="{{ current_filters.max_price }}"
+                                            class="w-full bg-[#2d2d2d] border border-transparent rounded-xl py-3 px-4 text-white focus:bg-black focus:border-white outline-none transition-colors font-bold">
+                                    </div>
+                                </div>
+
+                                <div class="mt-auto pb-8">
+                                    <button type="submit"
+                                        class="w-full bg-white text-black font-bold text-lg py-4 rounded-xl hover:bg-gray-200 transition-colors shadow-lg">
+                                        Apply Filters
+                                    </button>
+
+                                    <a href="{% url 'store:product_list' %}"
+                                        class="block w-full text-center text-gray-400 font-bold hover:text-white transition-colors mt-6">
+                                        Clear All
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alpine Helper Script -->
+    <script>
+        function updateUrlParameter(uri, key, value) {
+            var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+            var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+            if (uri.match(re)) {
+                return uri.replace(re, '$1' + key + "=" + value + '$2');
+            }
+            else {
+                return uri + separator + key + "=" + value;
+            }
+        }
+    </script>
+</div>
+{% endif %}
+
+<!-- Shop Section Header Elements Removed to match app closely -->
+
+<!-- Product Grid (Sneaker App Style) -->
+<div id="shop" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-4 max-w-7xl mx-auto mb-12">
+    {% for product in products %}
+    <a href="{{ product.get_absolute_url }}"
+        class="flex flex-col bg-white rounded-3xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-xl transition-all duration-300 group">
+
+        <!-- Top Half: Image Container with Light Gray Background -->
+        <div
+            class="relative h-44 sm:h-56 w-full p-2 bg-[#f0f0f0] rounded-t-3xl rounded-b-xl flex items-center justify-center">
+
+            <!-- Favorite (Heart) Icon Top Left -->
+            <button x-data="{ isFavorite: {% if product.id in favorite_product_ids %}true{% else %}false{% endif %} }"
+                @click.prevent="
+                    {% if not request.user.is_authenticated %}
+                        window.location.href = '{% url 'login' %}';
+                    {% else %}
+                        fetch('{% url 'store:toggle_favorite' product.id %}', {
+                            method: 'POST',
+                            headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+                        })
+                        .then(r => r.json())
+                        .then(data => { if(data.status) isFavorite = !isFavorite });
+                    {% endif %}
+                " :class="isFavorite ? 'text-red-500' : 'text-gray-400 hover:text-red-500'"
+                class="absolute top-3 left-3 w-8 h-8 flex items-center justify-center transition-colors z-10 bg-white/70 backdrop-blur-md rounded-full shadow-sm border border-gray-200">
+                <i class="fas fa-heart text-sm" x-show="isFavorite" style="display:none;"></i>
+                <i class="far fa-heart text-sm" x-show="!isFavorite"></i>
+            </button>
+
+            <!-- Product Image centered -->
+            <div class="w-[85%] h-[85%] relative">
+                {% if product.main_image %}
+                <img src="{{ product.main_image.url }}" alt="{{ product.title }}"
+                    class="w-full h-full object-contain filter drop-shadow-lg group-hover:scale-110 transition-transform duration-500">
+                {% else %}
+                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2070&auto=format&fit=crop"
+                    alt="Placeholder Product image"
+                    class="w-full h-full object-contain filter drop-shadow-lg group-hover:scale-110 transition-transform duration-500">
+                {% endif %}
+            </div>
+
+            <!-- Add to Cart Icon Floating Bottom Right (overlapping) -->
+            <button @click.prevent="
+                    fetch('{% url 'cart:cart_add' product.id %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': '{{ csrf_token }}',
+                            'Accept': 'application/json'
+                        },
+                        body: 'quantity=1'
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        cartCount = data.cart_total_items;
+                        toastMessage = data.message;
+                        cartToast = true;
+                        fetchCart();
+                        cartOpen = true;
+                        setTimeout(() => cartToast = false, 3000);
+                    })
+                "
+                class="absolute -bottom-3 right-3 w-8 h-8 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-md text-black hover:bg-black hover:text-white transition-colors z-10">
+                <i class="fas fa-cart-plus text-xs"></i>
+            </button>
+        </div>
+
+        <!-- Bottom Half: Details -->
+        <div class="p-3 pt-4 bg-white flex flex-col flex-grow">
+            <!-- Left-aligned Title -->
+            <h3 class="text-sm font-heading font-extrabold text-[#111827] line-clamp-1 mb-0.5">{{ product.title }}</h3>
+            <p class="text-[10px] text-gray-500 mb-2 font-bold">{{ product.category.title }}</p>
+
+            <!-- MRP Pricing Formatting -->
+            <span class="text-[11px] font-bold text-[#111827] px-0 py-1 rounded-sm">MRP : RWF {{ product.price }}</span>
+        </div>
+    </a>
+    {% empty %}
+    <div class="glass-card" style="grid-column: 1 / -1; text-align: center; padding: 4rem;">
+        <h3>No products found in this category.</h3>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

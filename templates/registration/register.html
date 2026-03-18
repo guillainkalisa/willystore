@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account | Willystore{% endblock %}
+
+{% block content %}
+<style>
+    .django-form input {
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        border: 1px solid #1f2937;
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        color: white;
+        font-weight: bold;
+        outline: none;
+        transition: all 0.2s;
+    }
+
+    .django-form input:focus {
+        background-color: black;
+        border-color: #6d28d9;
+    }
+
+    .django-form ul.errorlist {
+        color: #ef4444;
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .django-form .helptext {
+        color: #6b7280;
+        font-size: 0.65rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+</style>
+
+<div class="flex items-center justify-center min-h-[70vh] px-4 py-12">
+    <div
+        class="w-full max-w-md p-8 sm:p-10 bg-[#1a1a1a] rounded-3xl shadow-2xl border border-gray-800 relative overflow-hidden">
+        <!-- Decoration -->
+        <div
+            class="absolute -top-10 -right-10 w-40 h-40 bg-accent-secondary/20 rounded-full blur-3xl pointer-events-none">
+        </div>
+        <div
+            class="absolute -bottom-10 -left-10 w-40 h-40 bg-accent-primary/20 rounded-full blur-3xl pointer-events-none">
+        </div>
+
+        <div class="relative z-10 text-center mb-8">
+            <h1 class="text-3xl font-heading font-extrabold text-white mb-2">Join Willystore</h1>
+            <p class="text-sm font-bold text-gray-500">Create an account to save your favorite drops.</p>
+        </div>
+
+        <form method="post" class="relative z-10 flex flex-col gap-5 django-form">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="flex flex-col gap-1.5">
+                <label for="{{ field.id_for_label }}"
+                    class="text-xs font-bold text-gray-400 uppercase tracking-widest pl-1">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                {{ field.errors }}
+                {% endif %}
+                {% if field.help_text %}
+                <span class="helptext">{{ field.help_text|safe }}</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <button type="submit"
+                class="mt-4 w-full bg-white text-black font-extrabold text-lg py-4 rounded-xl hover:bg-gray-200 transition-colors shadow-lg">
+                Create Account
+            </button>
+        </form>
+
+        <p class="relative z-10 mt-8 text-center text-sm font-bold text-gray-500">
+            Already have an account?
+            <a href="{% url 'login' %}"
+                class="text-white hover:text-accent-primary transition-colors border-b border-transparent hover:border-white">Sign
+                In</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

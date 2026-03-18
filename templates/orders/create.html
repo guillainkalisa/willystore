@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout | Willystore{% endblock %}
+
+{% block content %}
+<div class="page-header text-left mt-8 mb-6 sm:mt-12 sm:mb-8">
+    <h1 class="text-3xl sm:text-4xl font-heading font-bold mb-2">Checkout</h1>
+    <p class="text-text-secondary text-sm sm:text-base">Complete your premium order below.</p>
+</div>
+
+<div class="flex flex-col-reverse lg:flex-row gap-8 lg:gap-12 items-start mb-12">
+    <!-- Checkout Form -->
+    <div class="w-full lg:w-2/3 glass-card p-6 sm:p-8" x-data="{ paymentMethod: 'momo' }">
+        <h3 class="text-xl font-heading font-bold mb-6 pb-4 border-b border-[var(--glass-border)]">Shipping
+            Details</h3>
+        <form action="." method="post" class="space-y-6">
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+                <div class="form-group mb-0">
+                    <label for="id_first_name" class="block text-sm font-medium text-text-secondary mb-1">First
+                        Name</label>
+                    <input type="text" name="first_name" id="id_first_name" class="form-control" required>
+                </div>
+                <div class="form-group mb-0">
+                    <label for="id_last_name" class="block text-sm font-medium text-text-secondary mb-1">Last
+                        Name</label>
+                    <input type="text" name="last_name" id="id_last_name" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+                <div class="form-group mb-0">
+                    <label for="id_email" class="block text-sm font-medium text-text-secondary mb-1">Email</label>
+                    <input type="email" name="email" id="id_email" class="form-control" required>
+                </div>
+                <div class="form-group mb-0">
+                    <label for="id_phone" class="block text-sm font-medium text-text-secondary mb-1">Phone
+                        Number</label>
+                    <input type="text" name="phone" id="id_phone" class="form-control" placeholder="078..." required>
+                </div>
+            </div>
+
+            <div class="form-group mb-4 sm:mb-6">
+                <label for="id_address" class="block text-sm font-medium text-text-secondary mb-1">Delivery
+                    Address</label>
+                <input type="text" name="address" id="id_address" class="form-control"
+                    placeholder="Street layout, House No." required>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+                <div class="form-group mb-0">
+                    <label for="id_city" class="block text-sm font-medium text-text-secondary mb-1">City</label>
+                    <input type="text" name="city" id="id_city" class="form-control" value="Kigali" required>
+                </div>
+                <div class="form-group mb-0">
+                    <label for="id_district"
+                        class="block text-sm font-medium text-text-secondary mb-1">District/Sector</label>
+                    <input type="text" name="district" id="id_district" class="form-control"
+                        placeholder="e.g. Gasabo, Remera">
+                </div>
+            </div>
+
+            <!-- Payment Method Selection -->
+            <div class="pt-6 border-t border-[var(--glass-border)]">
+                <h3 class="text-lg font-heading font-bold mb-4 text-white">Payment Method</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- MoMo Option -->
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="payment_method" value="momo" class="peer sr-only"
+                            x-model="paymentMethod">
+                        <div
+                            class="p-4 rounded-xl border-2 transition-all bg-[var(--glass-bg)] hover:bg-[rgba(255,255,255,0.05)] border-[var(--glass-border)] peer-checked:border-accent-primary peer-checked:bg-accent-primary/10 flex flex-col items-center gap-2">
+                            <i class="fas fa-mobile-alt text-3xl mb-1 text-[#ffcc00]"></i>
+                            <span class="font-bold text-white">Mobile Money</span>
+                            <span class="text-xs text-text-secondary">MTN MoMo / Airtel</span>
+                        </div>
+                    </label>
+
+                    <!-- Cash Option -->
+                    <label class="relative cursor-pointer">
+                        <input type="radio" name="payment_method" value="cash" class="peer sr-only"
+                            x-model="paymentMethod">
+                        <div
+                            class="p-4 rounded-xl border-2 transition-all bg-[var(--glass-bg)] hover:bg-[rgba(255,255,255,0.05)] border-[var(--glass-border)] peer-checked:border-accent-primary peer-checked:bg-accent-primary/10 flex flex-col items-center gap-2">
+                            <i class="fas fa-money-bill-wave text-3xl mb-1 text-emerald-500"></i>
+                            <span class="font-bold text-white">Cash on Delivery</span>
+                            <span class="text-xs text-text-secondary">Pay upon arrival</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Dynamic MoMo Instructions Layout -->
+            <div x-show="paymentMethod === 'momo'" x-collapse class="overflow-hidden transition-all duration-300">
+                <div class="mt-4 p-5 rounded-2xl bg-yellow-500/10 border border-yellow-500/20 text-sm">
+                    <div class="flex items-start gap-4">
+                        <div
+                            class="w-10 h-10 rounded-full bg-yellow-400 text-black flex items-center justify-center font-bold text-lg flex-shrink-0 mt-1">
+                            <i class="fas fa-mobile-alt"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-extrabold text-white text-base mb-1">Instant Mobile Money Checkout</h4>
+                            <p class="text-gray-400 mb-0 leading-relaxed">
+                                Once you click "Place Order Securely", we will push a prompt directly to your phone.
+                                Simply enter your mobile money PIN to confirm the payment of <strong
+                                    class="text-yellow-400 font-bold">RWF {{ cart.get_total_price }}</strong>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit"
+                class="btn-primary w-full mt-4 py-4 text-lg shadow-lg shadow-accent-primary/20 hover:-translate-y-1 transition-transform">
+                <i class="fas fa-lock"></i> Place Order Securely
+            </button>
+        </form>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="w-full lg:w-1/3 glass-card p-6 sm:p-8 sticky top-24">
+        <h3 class="text-xl font-heading font-bold mb-6 pb-4 border-b border-[var(--glass-border)]">Your
+            Order</h3>
+
+        <div class="max-h-72 overflow-y-auto mb-6 pr-2 custom-scrollbar">
+            {% for item in cart %}
+            <div class="flex gap-4 mb-4 items-center">
+                <div class="w-12 h-12 rounded-lg overflow-hidden bg-white/5 flex-shrink-0">
+                    {% if item.product.main_image %}
+                    <img src="{{ item.product.main_image.url }}" alt="{{ item.product.title }}"
+                        class="w-full h-full object-cover">
+                    {% endif %}
+                </div>
+                <div class="flex-grow">
+                    <div class="font-bold text-sm">{{ item.product.title }}</div>
+                    <div class="text-text-secondary text-xs mt-1">Qty: {{ item.quantity }}</div>
+                </div>
+                <div class="font-bold text-accent-secondary">RWF {{ item.total_price }}</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="flex justify-between items-center mb-4 text-text-secondary text-sm sm:text-base">
+            <span>Subtotal</span>
+            <span>RWF {{ cart.get_total_price }}</span>
+        </div>
+        <div
+            class="flex justify-between items-center mb-8 text-xl font-heading font-bold pt-4 border-t border-[var(--glass-border)]">
+            <span>Total to Pay</span>
+            <span class="highlight text-2xl">RWF {{ cart.get_total_price }}</span>
+        </div>
+
+        <div class="text-xs text-text-secondary text-center">
+            <i class="fas fa-shield-alt text-accent-primary mr-1"></i> Payments are cash on delivery or Momo Pay upon
+            arrival.
+        </div>
+    </div>
+</div>
+{% endblock %}

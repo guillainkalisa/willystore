@@ -1,0 +1,58 @@
+<div class="flex flex-col gap-4 p-6">
+    {% for item in cart %}
+    <div
+        class="flex gap-4 items-center bg-[var(--glass-bg)] border border-[var(--glass-border)] p-4 rounded-2xl relative">
+        <div class="w-20 h-20 rounded-xl overflow-hidden bg-white/5 flex-shrink-0">
+            {% if item.product.main_image %}
+            <img src="{{ item.product.main_image.url }}" alt="{{ item.product.title }}"
+                class="w-full h-full object-cover">
+            {% endif %}
+        </div>
+        <div class="flex-grow">
+            <a href="{{ item.product.get_absolute_url }}" class="font-bold text-white text-sm hover:underline">{{ item.product.title }}</a>
+            <div class="text-gray-400 text-xs mt-1">
+                Qty: {{ item.quantity }}
+                {% if item.size %} | Size: {{ item.size }}{% endif %}
+            </div>
+            <div class="font-bold text-emerald-400 mt-2">RWF {{ item.total_price }}</div>
+        </div>
+        <!-- Remote Async Delete -->
+        <button type="button" @click="
+                    fetch('{% url 'cart:cart_remove' item.product.id %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-CSRFToken': '{{ csrf_token }}',
+                            'Accept': 'application/json'
+                        },
+                        body: 'size={{ item.size }}&color={{ item.color }}'
+                    })
+                    .then(r => r.json())
+                    .then(data => { cartCount = data.cart_total_items; fetchCart(); })
+                " class="absolute top-4 right-4 text-gray-500 hover:text-red-500 transition-colors">
+            <i class="fas fa-trash"></i>
+        </button>
+    </div>
+    {% empty %}
+    <div class="py-12 text-center flex flex-col items-center">
+        <div class="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center text-4xl text-gray-500 mb-4">
+            <i class="fas fa-shopping-bag"></i>
+        </div>
+        <p class="text-white font-bold text-lg mb-2">Your cart is empty</p>
+        <p class="text-gray-500 text-sm">Looks like you haven't added anything yet.</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% if cart %}
+<div class="p-6">
+    <div class="flex justify-between items-center text-white mb-2">
+        <span class="text-gray-400 font-medium">Subtotal</span>
+        <span class="font-bold">RWF {{ cart.get_total_price }}</span>
+    </div>
+    <div class="flex justify-between items-center text-white text-xl border-t border-gray-800 pt-4 mt-2">
+        <span class="font-bold">Total</span>
+        <span class="font-extrabold text-emerald-400">RWF {{ cart.get_total_price }}</span>
+    </div>
+</div>
+{% endif %}

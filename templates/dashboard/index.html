@@ -1,0 +1,97 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Dashboard Overview - Willystore Admin{% endblock %}
+{% block header_title %}Overview{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Total Orders -->
+        <div
+            class="glassmorphism p-6 rounded-2xl border border-[var(--glass-border)] relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <i class="fas fa-shopping-bag text-6xl text-accent-primary"></i>
+            </div>
+            <div class="relative z-10 flex flex-col gap-2">
+                <p class="text-text-secondary text-sm font-medium uppercase tracking-wider">Total Orders</p>
+                <h3 class="text-4xl font-heading font-extrabold text-white">{{ total_orders }}</h3>
+            </div>
+            <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-accent-primary to-transparent"></div>
+        </div>
+
+        <!-- Revenue -->
+        <div
+            class="glassmorphism p-6 rounded-2xl border border-[var(--glass-border)] relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <i class="fas fa-chart-line text-6xl text-emerald-500"></i>
+            </div>
+            <div class="relative z-10 flex flex-col gap-2">
+                <p class="text-text-secondary text-sm font-medium uppercase tracking-wider">Total Revenue</p>
+                <h3 class="text-4xl font-heading font-extrabold text-white">RWF {{ revenue|floatformat:0 }}</h3>
+            </div>
+            <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-transparent"></div>
+        </div>
+
+        <!-- Total Products -->
+        <div
+            class="glassmorphism p-6 rounded-2xl border border-[var(--glass-border)] relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
+            <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <i class="fas fa-box-open text-6xl text-accent-secondary"></i>
+            </div>
+            <div class="relative z-10 flex flex-col gap-2">
+                <p class="text-text-secondary text-sm font-medium uppercase tracking-wider">Active Products</p>
+                <h3 class="text-4xl font-heading font-extrabold text-white">{{ total_products }}</h3>
+            </div>
+            <div class="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-accent-secondary to-transparent">
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders Table -->
+    <div class="glassmorphism rounded-2xl border border-[var(--glass-border)] overflow-hidden mt-8">
+        <div class="p-6 border-b border-[var(--glass-border)] flex justify-between items-center">
+            <h2 class="text-xl font-heading font-bold text-white">Recent Orders</h2>
+            <a href="{% url 'dashboard:order_list' %}"
+                class="text-sm text-accent-secondary hover:text-white transition-colors">View All &rarr;</a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-text-secondary">
+                <thead class="text-xs uppercase bg-[rgba(255,255,255,0.02)] text-white/70">
+                    <tr>
+                        <th class="px-6 py-4 font-medium">Order ID</th>
+                        <th class="px-6 py-4 font-medium">Customer</th>
+                        <th class="px-6 py-4 font-medium">Date</th>
+                        <th class="px-6 py-4 font-medium">Status</th>
+                        <th class="px-6 py-4 font-medium">Total</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--glass-border)]">
+                    {% for order in recent_orders %}
+                    <tr class="hover:bg-[rgba(255,255,255,0.02)] transition-colors">
+                        <td class="px-6 py-4 font-medium text-white">#{{ order.id }}</td>
+                        <td class="px-6 py-4">{{ order.first_name }} {{ order.last_name }}</td>
+                        <td class="px-6 py-4">{{ order.created|date:"M d, Y" }}</td>
+                        <td class="px-6 py-4">
+                            {% if order.paid %}
+                            <span
+                                class="px-3 py-1 text-xs font-semibold rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Paid</span>
+                            {% else %}
+                            <span
+                                class="px-3 py-1 text-xs font-semibold rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 font-medium text-white">RWF {{ order.get_total_cost|floatformat:0 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-8 text-center text-text-secondary italic">No recent orders found.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

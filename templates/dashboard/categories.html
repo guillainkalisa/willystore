@@ -1,0 +1,148 @@
+{% extends 'dashboard/base_dashboard.html' %}
+
+{% block title %}Manage Categories - Willystore Admin{% endblock %}
+{% block header_title %}Categories{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header Actions -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h2 class="text-2xl font-heading font-bold text-white">Category Management</h2>
+        <button onclick="document.getElementById('addCategoryModal').classList.remove('hidden')"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-accent-primary to-accent-secondary text-white text-sm font-semibold rounded-lg shadow-lg shadow-accent-primary/20 hover:shadow-accent-primary/40 hover:-translate-y-0.5 transition-all">
+            <i class="fas fa-plus"></i>
+            <span>Add Category</span>
+        </button>
+    </div>
+
+    <!-- Add Category Modal (Inline Form) -->
+    <div id="addCategoryModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title"
+        role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-bg-color/80 backdrop-blur-sm transition-opacity" aria-hidden="true"
+                onclick="document.getElementById('addCategoryModal').classList.add('hidden')"></div>
+
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <div
+                class="inline-block w-full align-bottom glassmorphism rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-[var(--glass-border)]">
+                <div class="px-6 py-5 border-b border-[var(--glass-border)] flex justify-between items-center">
+                    <h3 class="text-xl font-heading font-bold text-white">Create Category</h3>
+                    <button type="button" class="text-text-secondary hover:text-white"
+                        onclick="document.getElementById('addCategoryModal').classList.add('hidden')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <form action="{% url 'dashboard:category_create' %}" method="post" class="px-6 py-5 space-y-4">
+                    {% csrf_token %}
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-text-secondary">Category Title</label>
+                        {{ form.title }}
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-text-secondary">Slug</label>
+                        {{ form.slug }}
+                    </div>
+                    <div
+                        class="flex items-center gap-3 mt-4 p-4 bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-lg">
+                        {{ form.is_active }}
+                        <div class="flex flex-col">
+                            <label class="text-sm font-medium text-white">Active Status</label>
+                            <span class="text-xs text-text-secondary">Visible to customers?</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex justify-end gap-3">
+                        <button type="button"
+                            class="px-4 py-2 rounded-lg text-sm text-text-secondary hover:bg-[var(--glass-bg)]"
+                            onclick="document.getElementById('addCategoryModal').classList.add('hidden')">Cancel</button>
+                        <button type="submit"
+                            class="px-4 py-2 rounded-lg text-sm font-bold text-white bg-accent-primary hover:bg-accent-secondary transition-colors">Create
+                            Category</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Categories Table -->
+    <div class="glassmorphism rounded-2xl border border-[var(--glass-border)] overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-text-secondary">
+                <thead class="text-xs uppercase bg-[rgba(255,255,255,0.02)] text-white/70">
+                    <tr>
+                        <th class="px-6 py-4 font-medium">Category Name</th>
+                        <th class="px-6 py-4 font-medium">Slug</th>
+                        <th class="px-6 py-4 font-medium">Products Count</th>
+                        <th class="px-6 py-4 font-medium">Status</th>
+                        <th class="px-6 py-4 font-medium text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--glass-border)]">
+                    {% for category in categories %}
+                    <tr class="hover:bg-[rgba(255,255,255,0.02)] transition-colors group">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-8 h-8 rounded bg-gradient-to-br from-accent-primary/20 to-accent-secondary/20 flex items-center justify-center text-accent-primary border border-accent-primary/30">
+                                    <i class="fas fa-tags"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-white">{{ category.title }}</p>
+                                    <p class="text-xs text-text-secondary">Created {{ category.created_at|date:"M d, Y"
+                                        }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 font-mono text-xs">{{ category.slug }}</td>
+                        <td class="px-6 py-4">
+                            <span
+                                class="px-2 py-1 rounded-full bg-[var(--glass-bg)] border border-[var(--glass-border)] text-xs text-white">
+                                {{ category.products.count }} items
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            {% if category.is_active %}
+                            <span
+                                class="px-3 py-1 text-xs font-semibold rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Active</span>
+                            {% else %}
+                            <span
+                                class="px-3 py-1 text-xs font-semibold rounded-full bg-slate-500/20 text-slate-400 border border-slate-500/30">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <div
+                                class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <a href="{{ category.get_absolute_url }}" target="_blank"
+                                    class="p-2 text-text-secondary hover:text-white transition-colors"
+                                    title="View Store">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'dashboard:category_edit' category.pk %}"
+                                    class="p-2 text-accent-secondary hover:text-white transition-colors"
+                                    title="Edit Category">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'dashboard:category_delete' category.pk %}"
+                                    class="p-2 text-red-400 hover:text-red-300 transition-colors"
+                                    title="Delete Category">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-text-secondary">
+                            <i class="fas fa-folder-open text-4xl mb-3 opacity-50"></i>
+                            <p>No categories found.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

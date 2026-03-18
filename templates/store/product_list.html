@@ -63,8 +63,7 @@
                 {% endif %}
             </div>
             <span
-                class="text-xs font-bold text-center {% if category and category.id == c.id %}text-white{% else %}text-gray-400{% endif %} line-clamp-2 leading-tight mt-1">{{
-                c.title }}</span>
+                class="text-xs font-bold text-center {% if category and category.id == c.id %}text-white{% else %}text-gray-400{% endif %} line-clamp-2 leading-tight mt-1">{{ c.title }}</span>
         </a>
         {% endfor %}
     </div>

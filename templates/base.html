@@ -4,7 +4,12 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0d0f17">
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="Willystore - Kigali's Premium Shoes and Clothes Destination.">
     <title>{% block title %}Willystore - Premium Kigali Fashion{% endblock %}</title>
     <link
@@ -386,8 +391,48 @@
         </div>
     </div>
 
+    <!-- Native App Bottom Navigation (Mobile Only) -->
+    <nav
+        class="md:hidden fixed bottom-0 left-0 w-full glassmorphism border-t border-[var(--glass-border)] z-[2000] flex justify-around items-center px-2 py-3 pb-[env(safe-area-inset-bottom,16px)]">
+        <a href="/"
+            class="flex flex-col items-center gap-1 text-center {% if request.path == '/' %}text-accent-secondary{% else %}text-gray-400 hover:text-white{% endif %} transition-colors">
+            <i class="fas fa-home text-xl mb-0.5"></i>
+            <span class="text-[10px] font-bold tracking-wider">Home</span>
+        </a>
+        <a href="{% url 'store:product_list' %}"
+            class="flex flex-col items-center gap-1 text-center {% if 'product' in request.path %}text-accent-secondary{% else %}text-gray-400 hover:text-white{% endif %} transition-colors">
+            <i class="fas fa-search text-xl mb-0.5"></i>
+            <span class="text-[10px] font-bold tracking-wider">Shop</span>
+        </a>
+        <button @click="if(navigator.vibrate) navigator.vibrate(50); cartOpen = true"
+            class="relative flex flex-col items-center gap-1 text-center text-gray-400 hover:text-white transition-colors">
+            <div class="relative">
+                <i class="fas fa-shopping-bag text-xl mb-0.5"></i>
+                <span x-show="cartCount > 0" x-text="cartCount"
+                    class="absolute -top-2 -right-3 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-[var(--bg-color)] min-w-[16px] text-center shadow-md"></span>
+            </div>
+            <span class="text-[10px] font-bold tracking-wider">Cart</span>
+        </button>
+        <a href="{% if user.is_authenticated %}{% url 'dashboard:index' %}{% else %}{% url 'login' %}{% endif %}"
+            class="flex flex-col items-center gap-1 text-center text-gray-400 hover:text-white transition-colors">
+            <i class="fas fa-user text-xl mb-0.5"></i>
+            <span class="text-[10px] font-bold tracking-wider">Profile</span>
+        </a>
+    </nav>
+
     <!-- Scripts -->
     <script src="{% static 'js/main.js' %}"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then((registration) => {
+                    console.log('ServiceWorker registered seamlessly with scope: ', registration.scope);
+                }, (err) => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 

@@ -96,12 +96,12 @@
             <div class="flex gap-4 mt-3">
                 <div
                     class="w-16 h-16 bg-gray-100 rounded-xl p-1 border-2 border-transparent hover:border-black cursor-pointer transition-colors scale-105 shadow-sm">
-                    <img src="{% if product.main_image %}{{ product.main_image.url }}{% else %}https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=200&auto=format&fit=crop{% endif %}"
+                    <img loading="lazy" src="{% if product.main_image %}{{ product.main_image.url }}{% else %}https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=200&auto=format&fit=crop{% endif %}"
                         class="w-full h-full object-contain">
                 </div>
                 <div
                     class="w-16 h-16 bg-gray-100 rounded-xl p-1 border-2 border-transparent hover:border-black cursor-pointer transition-colors opacity-70">
-                    <img src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?q=80&w=200&auto=format&fit=crop"
+                    <img loading="lazy" src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?q=80&w=200&auto=format&fit=crop"
                         class="w-full h-full object-contain">
                 </div>
                 <!-- Example disabled option -->
@@ -110,7 +110,7 @@
                     <div class="absolute inset-0 flex items-center justify-center z-10">
                         <div class="w-full h-[1px] bg-black rotate-45 transform origin-center absolute"></div>
                     </div>
-                    <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=200&auto=format&fit=crop"
+                    <img loading="lazy" src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=200&auto=format&fit=crop"
                         class="w-full h-full object-contain opacity-50">
                 </div>
             </div>

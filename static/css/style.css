@@ -15,10 +15,33 @@
 }
 
 /* Reset & Defaults */
+html {
+    scroll-behavior: smooth;
+}
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+}
+
+/* Custom Scrollbar for App-Like Feel */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary);
 }
 
 body {
@@ -31,9 +54,18 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    -webkit-overflow-scrolling: touch;
+    /* Momentum scrolling on iOS */
+    overscroll-behavior-y: none;
+    /* Prevent pull-to-refresh bounce on App UI */
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-family: var(--font-heading);
     font-weight: 700;
     letter-spacing: -0.02em;
@@ -85,8 +117,13 @@ ul {
 }
 
 @keyframes drift {
-    0% { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(30px, -30px) scale(1.1); }
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    100% {
+        transform: translate(30px, -30px) scale(1.1);
+    }
 }
 
 /* Glassmorphism Utilities */
@@ -109,7 +146,8 @@ ul {
 }
 
 .navbar.scrolled {
-    background: rgba(13, 15, 23, 0.85); /* Solidify on scroll */
+    background: rgba(13, 15, 23, 0.85);
+    /* Solidify on scroll */
 }
 
 .nav-container {
@@ -220,7 +258,8 @@ ul {
     max-width: 300px;
 }
 
-.footer-links h4, .footer-social h4 {
+.footer-links h4,
+.footer-social h4 {
     font-size: 1.2rem;
     margin-bottom: 1.5rem;
 }
@@ -235,7 +274,8 @@ ul {
 
 .footer-links ul li a:hover {
     color: var(--text-primary);
-    padding-left: 5px; /* Micro animation */
+    padding-left: 5px;
+    /* Micro animation */
 }
 
 .social-icons {
@@ -332,7 +372,8 @@ ul {
 .product-image-container {
     position: relative;
     width: 100%;
-    padding-top: 120%; /* Aspect ratio for clothes/shoes */
+    padding-top: 120%;
+    /* Aspect ratio for clothes/shoes */
     overflow: hidden;
     border-radius: var(--border-radius) var(--border-radius) 0 0;
     background: rgba(255, 255, 255, 0.02);
@@ -349,7 +390,8 @@ ul {
 }
 
 .product-card:hover .product-image-container img {
-    transform: scale(1.05); /* Smooth zoom effect */
+    transform: scale(1.05);
+    /* Smooth zoom effect */
 }
 
 .product-badge {
@@ -477,6 +519,7 @@ ul {
     overflow: hidden;
     box-shadow: var(--glass-shadow);
 }
+
 .hero-image::after {
     content: '';
     position: absolute;
@@ -488,21 +531,31 @@ ul {
 /* Responsive */
 @media (max-width: 768px) {
     .nav-links {
-        display: none; /* Hide for mobile, implement hamburger later if needed */
+        display: none;
+        /* Hide for mobile, implement hamburger later if needed */
     }
+
     .hero {
         flex-direction: column;
         text-align: center;
         padding-top: 4rem;
     }
+
     .hero-content h1 {
         font-size: 3rem;
     }
+
     .hero-content p {
         margin: 0 auto 2rem auto;
     }
+
     .hero-image {
         width: 100%;
         margin-top: 2rem;
+    }
+
+    body {
+        /* Add padding so the sticky bottom nav doesn't hide content */
+        padding-bottom: calc(75px + env(safe-area-inset-bottom, 16px));
     }
 }

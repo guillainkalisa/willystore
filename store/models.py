@@ -17,6 +17,12 @@ class Category(models.Model):
     def get_absolute_url(self):
         return reverse('store:product_list_by_category', args=[self.slug])
 
+    def get_representative_image(self):
+        """Returns the image of the most recently added product in this category."""
+        latest_product = self.products.exclude(main_image='').order_by('-created_at').first()
+        if latest_product and latest_product.main_image:
+            return latest_product.main_image.url
+        return None
 
 class Product(models.Model):
     category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE)

@@ -24,7 +24,8 @@
 
         <!-- Abstract Decoration / Image placeholder -->
         <div class="absolute right-0 top-1/2 -translate-y-1/2 w-[60%] h-[120%] opacity-80 pointer-events-none">
-            <img loading="lazy" src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2070&auto=format&fit=crop"
+            <img loading="lazy"
+                src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2070&auto=format&fit=crop"
                 class="w-full h-full object-cover object-left mask-image-circle"
                 style="-webkit-mask-image: radial-gradient(circle, black 30%, transparent 70%); mask-image: radial-gradient(circle, black 30%, transparent 70%);">
         </div>
@@ -54,19 +55,16 @@
         <a href="{{ c.get_absolute_url }}" class="flex flex-col items-center gap-2 group min-w-[70px]">
             <div
                 class="w-16 h-16 rounded-full flex items-center justify-center {% if category and category.id == c.id %}border-2 border-white{% else %}border border-gray-700 bg-gray-800{% endif %} overflow-hidden transition-all group-hover:shadow-md relative">
-                <!-- Using placeholder images or logic based on category name -->
-                {% if 'shoe' in c.title|lower %}
-                <img loading="lazy" src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=200&auto=format&fit=crop"
-                    class="w-full h-full object-cover">
-                {% elif 'shirt' in c.title|lower or 'clothe' in c.title|lower %}
-                <img loading="lazy" src="https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=200&auto=format&fit=crop"
-                    class="w-full h-full object-cover">
+                <!-- Dynamic Image from Latest Product -->
+                {% if c.get_representative_image %}
+                <img loading="lazy" src="{{ c.get_representative_image }}" class="w-full h-full object-cover">
                 {% else %}
                 <i class="fas fa-tag text-2xl text-gray-400"></i>
                 {% endif %}
             </div>
             <span
-                class="text-xs font-bold text-center {% if category and category.id == c.id %}text-white{% else %}text-gray-400{% endif %} line-clamp-2 leading-tight mt-1">{{ c.title }}</span>
+                class="text-xs font-bold text-center {% if category and category.id == c.id %}text-white{% else %}text-gray-400{% endif %} line-clamp-2 leading-tight mt-1">{{
+                c.title }}</span>
         </a>
         {% endfor %}
     </div>
@@ -226,7 +224,8 @@
                 <img loading="lazy" src="{{ product.main_image.url }}" alt="{{ product.title }}"
                     class="w-full h-full object-contain filter drop-shadow-lg group-hover:scale-110 transition-transform duration-500">
                 {% else %}
-                <img loading="lazy" src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2070&auto=format&fit=crop"
+                <img loading="lazy"
+                    src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2070&auto=format&fit=crop"
                     alt="Placeholder Product image"
                     class="w-full h-full object-contain filter drop-shadow-lg group-hover:scale-110 transition-transform duration-500">
                 {% endif %}

@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  # Load environment variables from .env file
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -132,7 +136,8 @@ LOGOUT_REDIRECT_URL = '/'
 # MTN MoMo API Configuration (Sandbox)
 MOMO_MOCK_API = True
 
-GEMINI_API_KEY = "AIzaSyA35bWDSAwAWbg5Ez51DRXDxnrRK40ud4M"  # Set to False to hit actual MTN Sandbox API endpoints
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
+
 MOMO_BASE_URL = 'https://sandbox.momodeveloper.mtn.com'
 MOMO_COLLECTION_SUBSCRIPTION_KEY = 'your_sandbox_subscription_key_here'
 MOMO_API_USER_ID = 'your_sandbox_api_user_id_here'

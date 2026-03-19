@@ -132,7 +132,7 @@ LOGOUT_REDIRECT_URL = '/'
 # MTN MoMo API Configuration (Sandbox)
 MOMO_MOCK_API = True
 
-GEMINI_API_KEY = "AIzaSyDGVE73vWZLWz0kopBlSuqyISmKCQrt04c"  # Set to False to hit actual MTN Sandbox API endpoints
+GEMINI_API_KEY = "AIzaSyA35bWDSAwAWbg5Ez51DRXDxnrRK40ud4M"  # Set to False to hit actual MTN Sandbox API endpoints
 MOMO_BASE_URL = 'https://sandbox.momodeveloper.mtn.com'
 MOMO_COLLECTION_SUBSCRIPTION_KEY = 'your_sandbox_subscription_key_here'
 MOMO_API_USER_ID = 'your_sandbox_api_user_id_here'

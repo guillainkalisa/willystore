@@ -162,6 +162,11 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Social Account Providers
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
+        'APP': {
+            'client_id': os.environ.get('GOOGLE_CLIENT_ID', 'dummy_client_id_to_prevent_crash'),
+            'secret': os.environ.get('GOOGLE_CLIENT_SECRET', 'dummy_secret_to_prevent_crash'),
+            'key': ''
+        },
         'SCOPE': [
             'profile',
             'email',

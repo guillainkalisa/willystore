@@ -15,8 +15,8 @@ def analyze_product_image_with_ai(image_file):
         # Open the image using PIL so Gemini can read it
         img = Image.open(image_file)
         
-        # Use the fast, multimodal Vision model
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # Use the universally stable multimodal Vision model available to all keys
+        model = genai.GenerativeModel('gemini-pro-vision')
         
         prompt = '''
         You are an expert luxury fashion copywriter and catalog manager.

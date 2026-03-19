@@ -1,9 +1,12 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 from store.models import Product, Category
 from orders.models import Order
 from .forms import ProductForm, CategoryForm
+from .ai_utils import analyze_product_image_with_ai
 
 @staff_member_required
 def dashboard_home(request):
@@ -118,3 +121,28 @@ def category_delete(request, pk):
         messages.success(request, 'Category deleted successfully.')
         return redirect('dashboard:category_list')
     return render(request, 'dashboard/category_confirm_delete.html', {'category': category})
+
+@staff_member_required
+@require_POST
+def analyze_image(request):
+    """Asynchronous endpoint to auto-generate product details using Gemini AI Vision."""
+    if 'image' not in request.FILES:
+        return JsonResponse({'error': 'No image provided'}, status=400)
+        
+    image_file = request.FILES['image']
+    
+    # Process through Gemini AI
+    ai_data = analyze_product_image_with_ai(image_file)
+    
+    # Try to fuzzy match the AI's category suggestion to an actual SQL database Category
+    suggested_cat = ai_data.get('category_suggestion', '')
+    category_id = None
+    if suggested_cat:
+        # Simple case-insensitive match
+        match = Category.objects.filter(title__icontains=suggested_cat).first()
+        if match:
+            category_id = match.id
+            
+    ai_data['category_id'] = category_id
+    
+    return JsonResponse(ai_data)

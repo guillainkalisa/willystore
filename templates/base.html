@@ -434,7 +434,7 @@
             </div>
             <span class="text-[10px] font-bold tracking-wider">Cart</span>
         </button>
-        <a href="{% if user.is_authenticated %}{% url 'dashboard:index' %}{% else %}{% url 'login' %}{% endif %}"
+        <a href="{% if user.is_authenticated %}{% url 'dashboard:home' %}{% else %}{% url 'login' %}{% endif %}"
             class="flex flex-col items-center gap-1 text-center text-gray-400 hover:text-white transition-colors">
             <i class="fas fa-user text-xl mb-0.5"></i>
             <span class="text-[10px] font-bold tracking-wider">Profile</span>

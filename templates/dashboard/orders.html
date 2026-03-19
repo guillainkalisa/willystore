@@ -36,11 +36,9 @@
                             phone: '{{ order.phone|escapejs }}',
                             address: '{{ order.address|escapejs }}',
                             city: '{{ order.city|escapejs }}',
-                            date: '{{ order.created|date:" M d, Y H:i" }}', status: {{ order.paid|yesno:"true,false"
-                        }}, total: '{{ order.get_total_cost|floatformat:2 }}' ,
+                            date: '{{ order.created|date:" M d, Y H:i" }}', status: {{ order.paid|yesno:"true,false" }}, total: '{{ order.get_total_cost|floatformat:2 }}' ,
                         payment_method: '{{ order.payment_method|escapejs }}' ,
-                        transaction_id: '{{ order.transaction_id|escapejs }}' , items: [ {% for item in order.items.all
-                        %} { title: '{{ item.product.title|escapejs }}' , price: '{{ item.price|floatformat:2 }}' ,
+                        transaction_id: '{{ order.transaction_id|escapejs }}' , items: [ {% for item in order.items.all %} { title: '{{ item.product.title|escapejs }}' , price: '{{ item.price|floatformat:2 }}' ,
                         quantity: '{{ item.quantity }}' ,
                         image: '{% if item.product.main_image %}{{ item.product.main_image.url }}{% else %}https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2070&auto=format&fit=crop{% endif %}'
                         }{% if not forloop.last %},{% endif %} {% endfor %} ] })">

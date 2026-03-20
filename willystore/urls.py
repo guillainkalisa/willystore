@@ -29,6 +29,8 @@ urlpatterns = [
     path('orders/', include('orders.urls', namespace='orders')),
     path('dashboard/', include('dashboard.urls', namespace='dashboard')),
     path('accounts/', include('allauth.urls')),
+    # Aliases for backward compatibility with legacy 'login'/'logout' names
+    path('login/', include(([path('', TemplateView.as_view(), name='login')], 'auth'))), # This is tricky
     path('sw.js', TemplateView.as_view(template_name='sw.js', content_type='application/javascript'), name='sw.js'),
 ]
 

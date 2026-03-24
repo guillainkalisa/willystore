@@ -52,7 +52,7 @@
                 <p class="text-[10px] text-gray-500 mb-2 font-bold">{{ product.category.title }}</p>
 
                 <!-- MRP Pricing Formatting -->
-                <span class="text-[11px] font-bold text-[#111827] px-0 py-1 rounded-sm">MRP : RWF {{ product.price }}</span>
+                <span class="text-[11px] font-bold text-[#111827] px-0 py-1 rounded-sm">RWF {{ product.price|floatformat:0 }}</span>
             </div>
         </a>
         {% empty %}

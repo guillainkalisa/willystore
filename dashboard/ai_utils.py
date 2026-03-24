@@ -10,7 +10,11 @@ def analyze_product_image_with_ai(image_file):
     and returns a structured JSON dictionary with title, description, and keywords.
     """
     try:
-        genai.configure(api_key=settings.GEMINI_API_KEY)
+        api_key = settings.GEMINI_API_KEY
+        if not api_key:
+            raise ValueError("GEMINI_API_KEY is not set in settings.py")
+            
+        genai.configure(api_key=api_key)
         
         # Open the image using PIL so Gemini can read it
         img = Image.open(image_file)

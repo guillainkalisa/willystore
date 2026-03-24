@@ -3,7 +3,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from store.models import Product, Category
+from store.models import Product, Category, ProductImage
 from orders.models import Order
 from .forms import ProductForm, CategoryForm
 from .ai_utils import analyze_product_image_with_ai
@@ -33,7 +33,9 @@ def product_create(request):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
+            product = form.save()
+            for image in request.FILES.getlist('gallery_images'):
+                ProductImage.objects.create(product=product, image=image)
             messages.success(request, 'Product created successfully.')
             return redirect('dashboard:product_list')
     else:
@@ -46,7 +48,9 @@ def product_edit(request, pk):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
-            form.save()
+            product = form.save()
+            for image in request.FILES.getlist('gallery_images'):
+                ProductImage.objects.create(product=product, image=image)
             messages.success(request, 'Product updated successfully.')
             return redirect('dashboard:product_list')
     else:
@@ -146,3 +150,11 @@ def analyze_image(request):
     ai_data['category_id'] = category_id
     
     return JsonResponse(ai_data)
+
+
+@staff_member_required
+@require_POST
+def delete_product_image(request, image_id):
+    image = get_object_or_404(ProductImage, pk=image_id)
+    image.delete()
+    return JsonResponse({'status': 'success'})

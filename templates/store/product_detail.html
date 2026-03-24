@@ -3,7 +3,7 @@
 {% block title %}{{ product.title }} | Willystore{% endblock %}
 
 {% block content %}
-<div class="flex flex-col lg:flex-row gap-8 lg:gap-16 mt-0 lg:mt-6 items-start -mx-4 sm:mx-0">
+<div class="flex flex-col lg:flex-row gap-8 lg:gap-16 mt-0 lg:mt-6 items-start -mx-4 sm:mx-0" x-data="{ activeImage: '{% if product.main_image %}{{ product.main_image.url }}{% else %}https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2070&auto=format&fit=crop{% endif %}' }">
     <!-- Image Header Section (Sneaker App Style with orange glow) -->
     <div
         class="w-full lg:w-1/2 relative min-h-[50vh] flex items-center justify-center p-8 bg-white sm:rounded-3xl border-b border-gray-100 sm:border pt-20">
@@ -43,13 +43,12 @@
         </div>
 
         {% if product.main_image %}
-        <img id="main-product-image" src="{{ product.main_image.url }}" alt="{{ product.title }}"
-            class="relative z-10 w-full max-w-sm object-contain drop-shadow-[0_20px_20px_rgba(0,0,0,0.5)] transform -rotate-[15deg] hover:rotate-0 transition-transform duration-700">
+        <img id="main-product-image" :src="activeImage" src="{{ product.main_image.url }}" alt="{{ product.title }}"
+            class="relative z-10 w-full max-w-sm object-contain drop-shadow-[0_20px_20px_rgba(0,0,0,0.5)] transform -rotate-[15deg] hover:rotate-0 transition-all duration-700">
         {% else %}
-        <img id="main-product-image"
-            src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2070&auto=format&fit=crop"
+        <img id="main-product-image" :src="activeImage" src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2070&auto=format&fit=crop"
             alt="{{ product.title }}"
-            class="relative z-10 w-full max-w-sm object-contain drop-shadow-[0_20px_20px_rgba(0,0,0,0.5)] transform -rotate-[15deg] hover:rotate-0 transition-transform duration-700">
+            class="relative z-10 w-full max-w-sm object-contain drop-shadow-[0_20px_20px_rgba(0,0,0,0.5)] transform -rotate-[15deg] hover:rotate-0 transition-all duration-700">
         {% endif %}
 
         <!-- Image Pagination Dots -->
@@ -68,8 +67,7 @@
                 <h1 class="text-2xl sm:text-3xl font-heading font-extrabold text-[#111827] mb-1">{{ product.title }}
                 </h1>
                 <p class="text-sm font-bold text-gray-500 mb-3">{{ product.category.title }}</p>
-                <div class="bg-gray-500 text-white text-sm font-bold px-3 py-1.5 rounded-md inline-block">MRP : RWF {{
-                    product.price }}</div>
+                <div class="bg-gray-500 text-white text-sm font-bold px-3 py-1.5 rounded-md inline-block">RWF {{ product.price|floatformat:0 }}</div>
             </div>
 
             <!-- Favorite (Heart) Icon -->
@@ -93,30 +91,22 @@
         </div>
 
         <div class="text-sm text-gray-600 mb-8 pb-6 border-b border-gray-100">
-            Available Options
-            <div class="flex gap-4 mt-3">
-                <div
-                    class="w-16 h-16 bg-gray-100 rounded-xl p-1 border-2 border-transparent hover:border-black cursor-pointer transition-colors scale-105 shadow-sm">
-                    <img loading="lazy"
-                        src="{% if product.main_image %}{{ product.main_image.url }}{% else %}https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=200&auto=format&fit=crop{% endif %}"
-                        class="w-full h-full object-contain">
+            Available Options (Gallery)
+            <div class="flex gap-4 mt-3 overflow-x-auto pb-2 custom-scrollbar">
+                {% if product.main_image %}
+                <div @click="activeImage = '{{ product.main_image.url }}'"
+                    :class="activeImage === '{{ product.main_image.url }}' ? 'border-black scale-105 shadow-sm' : 'border-transparent hover:border-black opacity-70 hover:opacity-100'"
+                    class="w-16 h-16 bg-gray-100 rounded-xl p-1 border-2 cursor-pointer transition-all flex-shrink-0">
+                    <img loading="lazy" src="{{ product.main_image.url }}" class="w-full h-full object-contain">
                 </div>
-                <div
-                    class="w-16 h-16 bg-gray-100 rounded-xl p-1 border-2 border-transparent hover:border-black cursor-pointer transition-colors opacity-70">
-                    <img loading="lazy"
-                        src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?q=80&w=200&auto=format&fit=crop"
-                        class="w-full h-full object-contain">
+                {% endif %}
+                {% for image in product.images.all %}
+                <div @click="activeImage = '{{ image.image.url }}'"
+                    :class="activeImage === '{{ image.image.url }}' ? 'border-black scale-105 shadow-sm' : 'border-transparent hover:border-black opacity-70 hover:opacity-100'"
+                    class="w-16 h-16 bg-gray-100 rounded-xl p-1 border-2 cursor-pointer transition-all flex-shrink-0">
+                    <img loading="lazy" src="{{ image.image.url }}" class="w-full h-full object-contain">
                 </div>
-                <!-- Example disabled option -->
-                <div
-                    class="w-16 h-16 bg-gray-100 rounded-xl p-1 border-2 border-transparent relative opacity-50 cursor-not-allowed">
-                    <div class="absolute inset-0 flex items-center justify-center z-10">
-                        <div class="w-full h-[1px] bg-black rotate-45 transform origin-center absolute"></div>
-                    </div>
-                    <img loading="lazy"
-                        src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=200&auto=format&fit=crop"
-                        class="w-full h-full object-contain opacity-50">
-                </div>
+                {% endfor %}
             </div>
         </div>
 
@@ -202,8 +192,7 @@
         <div class="mt-8 pt-6 border-t border-gray-100">
             <h3 class="font-bold text-[#111827] mb-2 uppercase text-xs tracking-wider">Product Description</h3>
             <div class="text-sm text-gray-500 leading-relaxed">
-                {{ product.description|default:"Step into premium comfort and unparalleled style. Exclusively available
-                in Kigali."|linebreaks }}
+                {{ product.description|default:"Step into premium comfort and unparalleled style. Exclusively available in Kigali."|linebreaks }}
             </div>
         </div>
 

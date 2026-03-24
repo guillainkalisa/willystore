@@ -1,14 +1,17 @@
 from django.urls import path
+from django.contrib.auth import views as auth_views
 from . import views
 
 app_name = 'dashboard'
 
 urlpatterns = [
+    path('willy-gate/', auth_views.LoginView.as_view(template_name='dashboard/admin_login.html', redirect_authenticated_user=True, next_page='dashboard:home'), name='admin_login'),
     path('', views.dashboard_home, name='home'),
     path('products/', views.product_list, name='product_list'),
     path('products/create/', views.product_create, name='product_create'),
     path('products/<int:pk>/edit/', views.product_edit, name='product_edit'),
     path('products/<int:pk>/delete/', views.product_delete, name='product_delete'),
+    path('products/image/<int:image_id>/delete/', views.delete_product_image, name='delete_product_image'),
     
     path('orders/', views.order_list, name='order_list'),
     path('orders/<int:pk>/status/', views.order_update_status, name='order_update_status'),

@@ -220,15 +220,34 @@
             </button>
 
             <!-- Product Image centered -->
-            <div class="w-[85%] h-[85%] relative">
-                {% if product.main_image %}
-                <img loading="lazy" src="{{ product.main_image.url }}" alt="{{ product.title }}"
-                    class="w-full h-full object-contain filter drop-shadow-lg group-hover:scale-110 transition-transform duration-500">
+            <div class="w-[85%] h-[85%] relative"
+                x-data="{ 
+                    images: [
+                        {% if product.main_image %}'{{ product.main_image.url }}'{% if product.images.all %},{% endif %}{% endif %}
+                        {% for img in product.images.all %}
+                            '{{ img.image.url }}'{% if not forloop.last %},{% endif %}
+                        {% endfor %}
+                    ],
+                    currentIndex: 0,
+                    init() {
+                        if (this.images.length > 1) {
+                            setInterval(() => {
+                                this.currentIndex = (this.currentIndex + 1) % this.images.length;
+                            }, 3000);
+                        }
+                    }
+                }">
+                {% if product.main_image or product.images.all %}
+                <template x-for="(img, index) in images" :key="index">
+                    <img loading="lazy" :src="img" :alt="'{{ product.title|escapejs }}' + ' image ' + (index+1)"
+                        :class="currentIndex === index ? 'opacity-100 z-10' : 'opacity-0 z-0'"
+                        class="w-full h-full object-contain filter drop-shadow-lg group-hover:scale-110 transition-all duration-1000 ease-in-out absolute inset-0 text-transparent">
+                </template>
                 {% else %}
                 <img loading="lazy"
                     src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=2070&auto=format&fit=crop"
                     alt="Placeholder Product image"
-                    class="w-full h-full object-contain filter drop-shadow-lg group-hover:scale-110 transition-transform duration-500">
+                    class="w-full h-full object-contain filter drop-shadow-lg group-hover:scale-110 transition-transform duration-500 absolute inset-0">
                 {% endif %}
             </div>
 
@@ -265,7 +284,7 @@
             <p class="text-[10px] text-gray-500 mb-2 font-bold">{{ product.category.title }}</p>
 
             <!-- MRP Pricing Formatting -->
-            <span class="text-[11px] font-bold text-[#111827] px-0 py-1 rounded-sm">MRP : RWF {{ product.price }}</span>
+            <span class="text-[11px] font-bold text-[#111827] px-0 py-1 rounded-sm">RWF {{ product.price|floatformat:0 }}</span>
         </div>
     </a>
     {% empty %}

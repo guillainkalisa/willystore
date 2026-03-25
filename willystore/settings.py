@@ -98,8 +98,15 @@ WSGI_APPLICATION = 'willystore.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 's9_willstore_db',
+        'USER': 'u9_ggkYtQScXw',
+        'PASSWORD': 'WjVgQkumE0=Ga5xaOx=C.EsB',
+        'HOST': 'pelican-mariadb-1', # Note: If this fails, use the IP address of your server
+        'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 }
 

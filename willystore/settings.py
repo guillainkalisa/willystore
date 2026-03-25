@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 import pymysql
 
+pymysql.version_info = (2, 2, 4, "final", 0)  # Added this thisss trick line to skip django versiiom check
 pymysql.install_as_MySQLdb()
 
 from pathlib import Path

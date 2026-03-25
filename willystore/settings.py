@@ -9,6 +9,10 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
+import pymysql
+
+pymysql.version_info = (2, 2, 4, "final", 0)  # Added this thisss trick line to skip django versiiom check
+pymysql.install_as_MySQLdb()
 
 from pathlib import Path
 import os
@@ -99,8 +103,15 @@ WSGI_APPLICATION = 'willystore.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 's9_willstore_db',
+        'USER': 'u9_ggkYtQScXw',
+        'PASSWORD': 'WjVgQkumE0=Ga5xaOx=C.EsB',
+        'HOST': 'pelican-mariadb-1', # Note: If this fails, use the IP address of your server
+        'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 }
 

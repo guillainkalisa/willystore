@@ -104,7 +104,7 @@ WSGI_APPLICATION = 'willystore.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 's9_willystore',
+        'NAME': 's10_willystore',
         'USER': 'u10_q4VTB0Vk8d',
         'PASSWORD': 'tMwoBui+UeqCA0n7VAHU0aIj',
         'HOST': 'pelican-mariadb-1', # Note: If this fails, use the IP address of your server
